@@ -740,3 +740,46 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .page_characterprofile #characterProfileTable thead th:last-of-type { text-align: left; padding-left: 16px; }
 .page_characterprofile .outfit { position: absolute; top: 0; left: 0; }
 .page_characterprofile .flag { position: absolute; top: 16px; right: 16px; }
+
+.top-players-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; }
+.top-player {
+	display: grid;
+	grid-template-columns: 22px 64px minmax(0, 1fr);
+	align-items: center;
+	gap: 10px;
+	padding: 4px 10px 4px 8px;
+	background: rgba(255, 255, 255, 0.015);
+	border: 1px solid rgba(232, 184, 90, 0.08);
+	border-radius: var(--radius-control);
+	transition: border-color 0.15s ease, background 0.15s ease;
+}
+.top-player:hover { background: rgba(255, 122, 26, 0.05); border-color: var(--color-border-strong); }
+.top-player-rank {
+	font-family: var(--font-display);
+	font-size: 1.05rem;
+	font-weight: 800;
+	text-align: center;
+	color: var(--color-gold-dark);
+}
+.top-player-rank-1 { background: linear-gradient(90deg, rgba(232, 184, 90, 0.12), rgba(232, 184, 90, 0.02)); border-color: rgba(232, 184, 90, 0.35); }
+.top-player-rank-1 .top-player-rank { color: #ffd27a; text-shadow: 0 0 10px rgba(255, 210, 122, 0.5); }
+.top-player-rank-2 .top-player-rank { color: #d6d0c8; }
+.top-player-rank-3 .top-player-rank { color: #d08a4e; }
+.top-player-outfit {
+	display: block;
+	width: 64px;
+	height: 64px;
+	margin: -6px 0 -4px;
+	background: radial-gradient(circle at 68% 70%, rgba(232, 184, 90, 0.18), transparent 55%);
+}
+.top-player-outfit img {
+	display: block;
+	width: 64px;
+	height: 64px;
+	max-width: none;
+}
+.top-player-info { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.top-player-name { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.top-player-level { font-size: 0.8rem; color: var(--color-text-faint); }
+.top-players-empty { margin: 0; color: var(--color-text-muted); font-size: 0.9rem; }
+.top_players_widget:not(:has(.top-player-outfit)) .top-player { grid-template-columns: 22px minmax(0, 1fr); padding: 8px 10px; }
