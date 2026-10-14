@@ -1,0 +1,527 @@
+BattlePassDay < UIWidget
+  size: 90 70
+  background-color: #262626
+  border-width: 1
+  border-color: #3a3a3a
+  focusable: false
+  @onClick: modules.game_battlepass.onDayClicked(self)
+
+  Label
+    id: dayNumber
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 8
+    font: verdana-11px-antialised
+    color: #909090
+    text-align: center
+    phantom: true
+
+  UIItem
+    id: item
+    size: 28 28
+    anchors.top: dayNumber.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 4
+    virtual: true
+    phantom: true
+
+  Label
+    id: status
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-bottom: 8
+    font: verdana-11px-antialised
+    color: #707070
+    text: Locked
+    text-align: center
+    phantom: true
+
+  $current:
+    border-width: 2
+    border-color: #c0c0c0
+
+  $done:
+    border-width: 2
+    border-color: #4caf50
+
+BattlePassRewardItem < UIWidget
+  size: 84 130
+  focusable: false
+
+  UIItem
+    id: icon
+    size: 34 34
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 10
+    virtual: true
+
+  Label
+    id: qty
+    size: 50 14
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 62
+    font: verdana-11px-antialised
+    color: #f0ded0
+    text-align: center
+
+  Label
+    id: itemName
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 78
+    margin-left: 5
+    margin-right: 5
+    font: verdana-11px-antialised
+    color: #a0a0a0
+    text-align: center
+    text-wrap: true
+    text-auto-resize: false
+    height: 48
+
+MainWindow
+  id: battlePassWindow
+  size: 940 620
+  @onEscape: modules.game_battlepass.hide()
+
+  UIWidget
+    id: titleBanner
+    size: 240 80
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: -65
+    image-source: /images/custom/battle_pass
+    image-auto-resize: true
+    phantom: true
+
+  Panel
+    id: subHeader
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 24
+    background-color: #262626
+
+    Label
+      id: seasonLabel
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      font: verdana-11px-antialised
+      color: #c0c0c0
+      text-auto-resize: true
+
+    Label
+      id: dayBadge
+      anchors.right: dateLabel.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 12
+      font: verdana-11px-antialised
+      color: #c0c0c0
+      text-auto-resize: true
+
+    Label
+      id: dateLabel
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 8
+      font: verdana-11px-antialised
+      color: #808080
+      text-auto-resize: true
+
+  Panel
+    id: progressRow
+    anchors.top: subHeader.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 24
+    margin-top: 4
+    background-color: #262626
+
+    Label
+      id: progressLabel
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      font: verdana-11px-antialised
+      color: #808080
+      text: PROGRESS:
+      text-auto-resize: true
+
+    ProgressBar
+      id: progressBar
+      anchors.left: progressLabel.right
+      anchors.right: progressSideLabel.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      margin-right: 12
+      height: 16
+      background-color: #cce6a3
+
+    Label
+      id: progressSideLabel
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 8
+      margin-left: 12
+      font: verdana-11px-antialised
+      color: #808080
+      text-auto-resize: true
+
+  Panel
+    id: leftPanel
+    anchors.top: progressRow.bottom
+    anchors.left: parent.left
+    anchors.bottom: footerSeparator.top
+    width: 460
+    margin-top: 8
+    margin-bottom: 12
+    background-color: #202020
+
+    UIScrollArea
+      id: dayScrollArea
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: dayScrollbar.left
+      anchors.bottom: missionBar.top
+      margin-right: 4
+      vertical-scrollbar: dayScrollbar
+      layout:
+        type: grid
+        cell-size: 90 70
+        cell-spacing: 4
+        flow: true
+
+    VerticalScrollBar
+      id: dayScrollbar
+      width: 10
+      anchors.top: dayScrollArea.top
+      anchors.bottom: dayScrollArea.bottom
+      anchors.right: parent.right
+      step: 70
+      pixels-scroll: true
+      auto-hide: true
+
+    Panel
+      id: missionBar
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      height: 88
+      image-source: /images/ui/panel_flat
+      image-border: 1
+      padding: 8
+
+      Label
+        id: missionSectionTitle
+        anchors.top: parent.top
+        anchors.left: parent.left
+        font: verdana-11px-antialised
+        color: #b0b0b0
+        text: MISSION
+
+      Label
+        id: missionDayIndicator
+        anchors.top: parent.top
+        anchors.right: parent.right
+        font: verdana-11px-antialised
+        color: #707070
+        text-auto-resize: true
+
+      Panel
+        id: missionIconFrame
+        size: 45 55
+        anchors.top: missionSectionTitle.bottom
+        anchors.left: parent.left
+        margin-top: 3
+        image-source: /images/custom/icon-masterylevel-1
+
+      UIItem
+        id: missionItem
+        size: 32 32
+        margin-bottom: 3
+        anchors.centerIn: missionIconFrame
+        virtual: true
+
+      Label
+        id: missionDesc
+        anchors.top: missionIconFrame.top
+        anchors.left: missionIconFrame.right
+        anchors.right: parent.right
+        margin-left: 10
+        font: verdana-11px-antialised
+        color: #c0c0c0
+        text-wrap: true
+        text-auto-resize: true
+
+      Label
+        id: missionProgress
+        anchors.top: missionDesc.bottom
+        anchors.left: missionIconFrame.right
+        margin-top: 5
+        margin-left: 3
+        font: verdana-11px-antialised
+        color: #4caf50
+
+  Panel
+    id: rightPanel
+    anchors.top: progressRow.bottom
+    anchors.left: leftPanel.right
+    anchors.right: parent.right
+    anchors.bottom: footerSeparator.top
+    margin-top: 8
+    margin-left: 8
+    margin-right: 8
+    margin-bottom: 12
+    background-color: #202020
+
+    Panel
+      id: detailHeader
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 28
+      background-color: #262626
+      border-bottom-width: 1
+      border-color: #3a3a3a
+
+      Label
+        id: detailDayLabel
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 8
+        font: verdana-11px-antialised
+        color: #b0b0b0
+        text-auto-resize: true
+
+    Panel
+      id: proRewardBlock
+      anchors.top: detailHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 204
+      margin-top: 8
+      background-color: #262626
+      border-left-width: 3
+      border-color: #6b5b3a
+
+      Label
+        id: proTrackLabel
+        anchors.top: parent.top
+        anchors.left: parent.left
+        margin-top: 8
+        margin-left: 8
+        font: verdana-11px-antialised
+        color: #a08a5a
+        text: PRO
+        text-auto-resize: true
+
+      UIScrollArea
+        id: proRewardItems
+        anchors.top: proTrackLabel.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: proRewardScrollbar.top
+        margin-top: 6
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 6
+        horizontal-scrollbar: proRewardScrollbar
+        layout:
+          type: horizontalBox
+          spacing: 8
+
+      HorizontalScrollBar
+        id: proRewardScrollbar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: proClaimButton.top
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 8
+        height: 6
+        step: 44
+        pixels-scroll: true
+        auto-hide: true
+
+      Button
+        id: proClaimButton
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 8
+        height: 22
+        font: verdana-11px-antialised
+        color: #a08a5a
+        background-color: #303030
+        border-width: 1
+        border-color: #4a4a4a
+        @onClick: modules.game_battlepass.claimProReward()
+
+    Panel
+      id: freeRewardBlock
+      anchors.top: proRewardBlock.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 204
+      margin-top: 8
+      background-color: #262626
+      border-left-width: 3
+      border-color: #3a5a3a
+
+      Label
+        id: freeTrackLabel
+        anchors.top: parent.top
+        anchors.left: parent.left
+        margin-top: 8
+        margin-left: 8
+        font: verdana-11px-antialised
+        color: #6a9a6a
+        text: FREE
+        text-auto-resize: true
+
+      UIScrollArea
+        id: freeRewardItems
+        anchors.top: freeTrackLabel.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: freeRewardScrollbar.top
+        margin-top: 6
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 6
+        horizontal-scrollbar: freeRewardScrollbar
+        layout:
+          type: horizontalBox
+          spacing: 8
+
+      HorizontalScrollBar
+        id: freeRewardScrollbar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: freeClaimButton.top
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 8
+        height: 6
+        step: 44
+        pixels-scroll: true
+        auto-hide: true
+
+      Button
+        id: freeClaimButton
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-left: 8
+        margin-right: 8
+        margin-bottom: 8
+        height: 22
+        font: verdana-11px-antialised
+        color: #6a9a6a
+        background-color: #303030
+        border-width: 1
+        border-color: #4a4a4a
+        @onClick: modules.game_battlepass.claimFreeReward()
+
+    Button
+      id: statusButton
+      anchors.top: freeRewardBlock.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+      margin-left: 8
+      margin-right: 8
+      height: 24
+      font: verdana-11px-antialised
+      color: #c0c0c0
+      background-color: #262626
+      border-width: 1
+      border-color: #3a3a3a
+      @onClick: modules.game_battlepass.onStatusAction()
+
+  HorizontalSeparator
+    id: footerSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: footer.top
+    margin-bottom: 8
+
+  Panel
+    id: footer
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 46
+    background-color: #262626
+    
+
+    Label
+      id: finalLabel
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      font: verdana-11px-antialised
+      color: #c0c0c0
+      text: FINAL REWARD:
+
+    Label
+      id: finalSubLabel
+      anchors.left: finalLabel.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 6
+      font: verdana-11px-antialised
+      color: #707070
+      text: (only for PRO)
+
+    Panel
+      id: finalRewardFrame
+      size: 190 55
+      anchors.left: finalSubLabel.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 10
+      image-source: /images/custom/moldura_text
+
+      UIItem
+        id: finalItem
+        size: 31 31
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+        virtual: true
+
+      Label
+        id: finalItemName
+        anchors.left: finalItem.right
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 6
+        margin-right: 6
+        font: verdana-11px-antialised
+        color: #a0a0a0
+        text-wrap: true
+        text-auto-resize: false
+
+    Label
+      id: dayCounterLabel
+      anchors.right: closeButton.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 12
+      font: verdana-11px-antialised
+      color: #707070
+
+    Button
+      id: closeButton
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 70
+      height: 20
+      margin-right: 8
+      !text: tr('Close')
+      @onClick: modules.game_battlepass.hide()

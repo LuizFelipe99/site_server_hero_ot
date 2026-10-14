@@ -1,0 +1,7 @@
+Options -Indexes
+
+<Files "manifest.json">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+</Files>
+
+SetEnv no-gzip 1
