@@ -1,6 +1,6 @@
 <div class="well search_widget" id="searchContainer">
 	<div class="header">
-		Character search
+		Buscar personagem
 	</div>
 	<div class="body">
 		<div class="relative">
@@ -12,7 +12,7 @@
 			</div>
 		</div>
 		<form class="searchForm" action="characterprofile.php" method="get">
-			<label for="src_name">Search: </label><input autocomplete="off" type="text" name="name" id="src_name" class="search" placeholder="Name . . .">
+			<label for="src_name"><i class="fa fa-search"></i></label><input autocomplete="off" type="text" name="name" id="src_name" class="search" placeholder="Nome do personagem...">
 		</form>
 		<?php
 		$cache = new Cache('engine/cache/characterNames');

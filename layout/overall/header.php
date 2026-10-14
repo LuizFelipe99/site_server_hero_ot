@@ -2,19 +2,25 @@
 	require_once 'layout/layout_config.php';
 	$launch_seconds = (strtotime($countDown) - time());
 	$delay_hide = $launch_seconds + $countDown_hide;
+	$current_page_name = isset($page_filename) ? $page_filename : '';
+	$is_home_page = ($current_page_name === '' || $current_page_name === 'index');
+	$players_online_count = user_count_online();
 ?>
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="pt-BR" dir="ltr">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title><?php echo $config['site_title']; ?></title>
+		<link rel="icon" href="layout/img/favicon.ico">
 
-		<!-- Stylesheet(s) -->
-		<link rel="stylesheet" href="layout/css/style.css?aio=1">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+		<link rel="stylesheet" href="layout/css/style.css?aio=2">
 		<link rel="stylesheet" href="layout/fontawesome/css/font-awesome.min.css?aio=1">
-		<link rel="stylesheet" href="layout/css/resp.css?aio=1">
+		<link rel="stylesheet" href="layout/css/resp.css?aio=2">
 
-		<!-- JavaScript(s) -->
 		<script src="layout/js/jquery.js" charset="utf-8"></script>
 
 		<?php if ($delay_hide > 0): ?>
@@ -32,27 +38,31 @@
 				});
 				$('#accountLink').click(function(e) {
 					if (this.href.indexOf('#') >= 0) {
-						console.log("hello", this.href, this.href.indexOf('#'));
 						$('.loginContainer input:first-of-type').focus();
 					}
 				});
 			});
 		</script>
 	</head>
-	<body<?php if (isset($page_filename) && strlen($page_filename) > 0) echo " class='page_{$page_filename}'"; ?>>
-		<!--
-			Layout author: Blackwolf (Snavy on otland)
-			Otland: https://otland.net/members/snavy.155163/
-			Facebook: http://www.facebook.com/idont.reallywolf.1
-			Twitter: @idontreallywolf
-			Converted to Znote AAC by: Znote
-		-->
-		<!-- Main container -->
+	<body<?php if (strlen($current_page_name) > 0) echo " class='page_{$current_page_name}'"; ?>>
+		<?php include 'layout/menu.php'; ?>
+
+		<header class="hero<?php if (!$is_home_page) echo ' hero-compact'; ?>">
+			<div class="hero-backdrop"></div>
+			<div class="hero-content">
+				<span class="hero-eyebrow"><span class="status-dot"></span><?php echo $players_online_count; ?> jogadores online</span>
+				<h1 class="hero-title"><?php echo $layout_server_name; ?></h1>
+				<?php if ($is_home_page): ?>
+					<p class="hero-tagline"><?php echo $layout_server_tagline; ?></p>
+					<div class="hero-actions">
+						<a class="button-play" href="downloads.php"><i class="fa fa-play"></i> Jogar agora</a>
+						<a class="button-ghost" href="register.php"><i class="fa fa-user-plus"></i> Criar conta</a>
+					</div>
+				<?php endif; ?>
+			</div>
+		</header>
+
 		<div class="main">
-			<?php include 'layout/menu.php'; ?>
-
-			<div class="well banner"></div>
-
 			<div class="well feedContainer preventCollapse">
 				<?php if ($delay_hide > 0): ?>
 					<div class="well topPane preventCollapse">
@@ -60,6 +70,5 @@
 							<div id="countDownTimer" data-date="<?=$countDown?>"></div>
 						</div>
 					</div>
-			<?php endif; ?>
-				<!-- MAIN FEED -->
+				<?php endif; ?>
 				<div class="pull-left leftPane">

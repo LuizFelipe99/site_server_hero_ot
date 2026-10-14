@@ -1,6 +1,6 @@
 <div class="well widget">
 	<div class="header">
-		Top 5 players
+		Top 5 jogadores
 	</div>
 	<div class="body">
 		<table>

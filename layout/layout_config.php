@@ -1,5 +1,7 @@
 <?php
-	// Set enabled to false to remove the widget
+	$layout_server_name = "Hero OT";
+	$layout_server_tagline = "Reúna seu grupo, enfrente os demônios e escreva sua lenda.";
+
 	$follow = array(
 		"enabled" => false,
 		"twitter" => "https://www.twitter.com/",
@@ -8,12 +10,9 @@
 		"twitch" => "https://www.twitch.tv/"
 	);
 
-	// Use same date format when changing: yyyy-mm-dd hh:mm
 	$countDown = "2020-06-10 01:00";
 
-	// Hide countdown after 1 day (24 hours) after countDown
 	$countDown_hide = 1 * 24 * 60 * 60;
 
-	// Say this after countdown, and before the row is hidden
-	$countDown_complete = "<span style='color: green;'>ONLINE</span>";
+	$countDown_complete = "<span style='color: #6fd38a;'>ONLINE</span>";
 ?>

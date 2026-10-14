@@ -1,6 +1,6 @@
 <div class="well myaccount_widget widget" id="loginContainer">
 	<div class="header">
-		Administration
+		Administração
 	</div>
 	<div class="body">
 		<ul class="linkbuttons">

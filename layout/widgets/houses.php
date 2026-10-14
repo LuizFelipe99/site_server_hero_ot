@@ -1,6 +1,6 @@
 <div class="well widget">
 	<div class="header">
-		Town list / houses
+		Casas por cidade
 	</div>
 	<div class="body">
 		<form action="houses.php" method="<?php if ($config['ServerEngine'] !== 'TFS_10') echo "post"; else echo "get" ;?>">
@@ -14,7 +14,7 @@
 				/* Form file */
 				if ($config['ServerEngine'] !== 'TFS_10') Token::create();
 			?>
-			<input type="submit" value="Fetch houses">
+			<input type="submit" value="Ver casas">
 		</form>
 	</div>
 </div>

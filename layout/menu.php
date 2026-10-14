@@ -1,65 +1,76 @@
-<nav>
+<nav class="site-nav">
 	<div class="container">
-		<!-- Menu left aligned -->
-		<div class="pull-left">
-			<ul>
-				<li><a href="/"><i class="fa fa-home"></i> Home</a>
-					<ul>
-						<li><a href="changelog.php">Changelog</a> </li>
-					</ul>
-				</li>
-				<li><a id="accountLink" href="myaccount.php"><i class="fa fa-user-circle"></i> Account</a>
-					<ul>
-						<li><a href="downloads.php">Downloads</a> </li>
-						<li><a href="sub.php?page=recover">Lost account</a> </li>
-						<li><a href="myaccount.php">My account</a> </li>
-						<li><a href="register.php">Register</a> </li>
-					</ul>
-				</li>
-				<li><a href="onlinelist.php"><i class="fa fa-users"></i> Community</a>
-					<ul>
-						<li><a href="sub.php?page=search">Characters</a> </li>
-						<li><a href="forum.php">Forum</a> </li>
-						<li><a href="guilds.php">Guilds</a> </li>
-						<li><a href="highscores.php">Highscores</a> </li>
-						<li><a href="houses.php">Houses</a> </li>
-						<li><a href="killers.php">Killstatistics</a> </li>
-						<li><a href="deaths.php">Latest deaths</a> </li>
-						<li><a href="onlinelist.php">Online List</a> </li>
-					</ul>
-				</li>
-				<li><a href="serverinfo.php"><i class="fa fa-book"></i> Library</a>
-					<ul>
-						<?php if ($config['items'] == true): ?>
-							<li><a href="items.php">Items</a> </li>
-						<?php endif; ?>
-						<li><a href="serverinfo.php">Serverinfo</a> </li>
-						<li><a href="spells.php">Spells</a> </li>
-					</ul>
-				</li>
-				<li><a href="support.php"><i class="fa fa-info-circle"></i> Support</a>
-					<ul>
-						<li><a href="helpdesk.php">Helpdesk</a> </li>
-						<li><a href="sub.php?page=recover">Lost account</a> </li>
-					</ul>
-				</li>
-				<li><a href="shop.php"><i class="fa fa-shopping-cart"></i> Shop</a>
-					<ul>
-						<li><a href="buypoints.php">Buy points</a> </li>
-						<?php if ($config['shop_auction']['characterAuction']): ?>
-							<li><a href="auctionChar.php">Character Auction</a> </li>
-						<?php endif; ?>
-						<li><a href="shop.php">Shop</a> </li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-		<!-- Menu right aligned -->
-		<div class="pull-right">
-			<ul>
-				<li><a href="sub.php?page=loginhelp" class="modIcon loginBtn"><i class="fa fa-lock"></i><i class="fa fa-unlock"></i> Login</a> </li>
-				<li><a href="register.php"><i class="fa fa-key"></i> Register</a> </li>
-			</ul>
+		<a class="nav-brand" href="/"><img src="layout/img/favicon.ico" alt=""><?php echo $layout_server_name; ?></a>
+
+		<input type="checkbox" id="navToggle" class="nav-toggle-input">
+		<label for="navToggle" class="nav-toggle-button" aria-label="Abrir menu"><i class="fa fa-bars"></i></label>
+
+		<div class="nav-collapse">
+			<div class="pull-left">
+				<ul>
+					<li><a href="/"><i class="fa fa-home"></i> Início</a>
+						<ul>
+							<li><a href="/">Notícias</a> </li>
+							<li><a href="changelog.php">Changelog</a> </li>
+						</ul>
+					</li>
+					<li><a id="accountLink" href="myaccount.php"><i class="fa fa-user-circle"></i> Conta</a>
+						<ul>
+							<li><a href="downloads.php">Downloads</a> </li>
+							<li><a href="sub.php?page=recover">Recuperar conta</a> </li>
+							<li><a href="myaccount.php">Minha conta</a> </li>
+							<li><a href="register.php">Criar conta</a> </li>
+						</ul>
+					</li>
+					<li><a href="onlinelist.php"><i class="fa fa-users"></i> Comunidade</a>
+						<ul>
+							<li><a href="sub.php?page=search">Personagens</a> </li>
+							<li><a href="forum.php">Fórum</a> </li>
+							<li><a href="guilds.php">Guilds</a> </li>
+							<li><a href="highscores.php">Highscores</a> </li>
+							<li><a href="houses.php">Casas</a> </li>
+							<li><a href="killers.php">Top killers</a> </li>
+							<li><a href="deaths.php">Últimas mortes</a> </li>
+							<li><a href="onlinelist.php">Quem está online</a> </li>
+						</ul>
+					</li>
+					<li><a href="serverinfo.php"><i class="fa fa-book"></i> Biblioteca</a>
+						<ul>
+							<?php if ($config['items'] == true): ?>
+								<li><a href="items.php">Itens</a> </li>
+							<?php endif; ?>
+							<li><a href="serverinfo.php">Informações do servidor</a> </li>
+							<li><a href="spells.php">Magias</a> </li>
+						</ul>
+					</li>
+					<li><a href="support.php"><i class="fa fa-info-circle"></i> Suporte</a>
+						<ul>
+							<li><a href="helpdesk.php">Helpdesk</a> </li>
+							<li><a href="sub.php?page=recover">Recuperar conta</a> </li>
+						</ul>
+					</li>
+					<li><a href="shop.php"><i class="fa fa-shopping-cart"></i> Loja</a>
+						<ul>
+							<li><a href="buypoints.php">Comprar pontos</a> </li>
+							<?php if ($config['shop_auction']['characterAuction']): ?>
+								<li><a href="auctionChar.php">Leilão de personagens</a> </li>
+							<?php endif; ?>
+							<li><a href="shop.php">Loja</a> </li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="pull-right nav-account">
+				<ul>
+					<?php if (user_logged_in() === true): ?>
+						<li><a href="myaccount.php" class="nav-account-link"><i class="fa fa-user"></i> Minha conta</a> </li>
+						<li><a href="logout.php" class="nav-cta-ghost"><i class="fa fa-sign-out"></i> Sair</a> </li>
+					<?php else: ?>
+						<li><a href="sub.php?page=loginhelp" class="modIcon loginBtn"><i class="fa fa-lock"></i><i class="fa fa-unlock"></i> Entrar</a> </li>
+						<li><a href="register.php" class="nav-cta"><i class="fa fa-key"></i> Criar conta</a> </li>
+					<?php endif; ?>
+				</ul>
+			</div>
 		</div>
 	</div>
 </nav>

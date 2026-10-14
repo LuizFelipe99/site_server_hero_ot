@@ -1,6 +1,6 @@
 <div class="well widget">
 	<div class="header">
-		View Highscores
+		Highscores
 	</div>
 	<div class="body">
 		<form action="highscores.php" method="get">
@@ -15,7 +15,7 @@
 				<option value="6">Fish</option>
 				<option value="8">Magic</option>
 			</select>
-			<input type="submit" value="Fetch scoreboard">
+			<input type="submit" value="Ver ranking">
 		</form>
 	</div>
 </div>

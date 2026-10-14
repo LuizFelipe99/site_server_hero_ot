@@ -1,6 +1,6 @@
 <div class="well widget">
 	<div class="header">
-		Server Information
+		Status do servidor
 	</div>
 	<div class="body">
 		<ul>
@@ -9,7 +9,7 @@
 			if ($config['status']['status_check']) {
 				@$sock = fsockopen ($config['status']['status_ip'], $config['status']['status_port'], $errno, $errstr, 1);
 				if(!$sock) {
-					echo "<span style='color:red;font-weight:bold;'><center>Server Offline!</center></span><br/>";
+					echo "<span style='color:red;font-weight:bold;'><center>Servidor offline</center></span><br/>";
 					$status = false;
 				}
 				else {
@@ -18,17 +18,17 @@
 					$data='';
 					while (!feof($sock))$data .= fgets($sock, 1024);
 					fclose($sock);
-					echo "<span style='color:green;font-weight:bold;'><center>Server Online!</center></span><br />";
+					echo "<span style='color:green;font-weight:bold;'><center>Servidor online</center></span><br />";
 				}
 			}
 			if ($status) {
 				?>
-				<li><a href="onlinelist.php">Players online:
+				<li><a href="onlinelist.php">Jogadores online:
 					<?php echo user_count_online(); ?></a></li>
 				<?php
 			}
 			?>
-			<li>Registered accounts: <?php echo user_count_accounts();?></li>
+			<li>Contas registradas: <?php echo user_count_accounts();?></li>
 		</ul>
 	</div>
 </div>

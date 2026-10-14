@@ -1,11 +1,11 @@
 <div class="well vote_widget" id="loginContainer">
 	<div class="header">
-		Vote for us!
+		Vote em nós!
 	</div>
 	<div class="body">
 		<form type="submit" action="voting.php" method="GET">
-			Get points by voting at OTServers.eu
-			<input type="submit" value="Vote">
+			Ganhe pontos votando no OTServers.eu
+			<input type="submit" value="Votar">
 		</form>
 	</div>
 </div>

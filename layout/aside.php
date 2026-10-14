@@ -1,4 +1,3 @@
-<!-- RIGHT PANE -->
 <div class="pull-right rightPane">
 	<?php
 	if (user_logged_in() === true) {
@@ -16,7 +15,7 @@
 	if ($follow["enabled"]): ?>
 		<div class="well">
 			<div class="header">
-				Follow Us
+				Siga-nos
 			</div>
 			<div class="body">
 				<table class="smedia centralizeContent">
@@ -29,44 +28,5 @@
 				</table>
 			</div>
 		</div>
-	<?php endif;
-	/*
-		<div class="well">
-			<div class="header">
-				Events
-			</div>
-			<div class="body">
-				<table>
-					<tr><td>Event Name</td><td><i class="fa fa-clock-o"></i> 2h 5m 10s</td></tr>
-					<tr><td>Event Name</td><td><i class="fa fa-clock-o"></i> 2h 5m 10s</td></tr>
-					<tr><td>Event Name</td><td><i class="fa fa-clock-o"></i> 2h 5m 10s</td></tr>
-					<tr><td>Event Name</td><td><i class="fa fa-clock-o"></i> 2h 5m 10s</td></tr>
-					<tr><td>Event Name</td><td><i class="fa fa-clock-o"></i> 2h 5m 10s</td></tr>
-				</table>
-			</div>
-		</div>
-
-		<div class="well">
-			<div class="header">
-				Top 10 Players
-			</div>
-			<div class="body">
-				<table>
-					<tr><td>#</td><td>Name</td></tr>
-					<tr><td>1</td><td>Name</td></tr>
-					<tr><td>2</td><td>Name</td></tr>
-					<tr><td>3</td><td>Name</td></tr>
-					<tr><td>4</td><td>Name</td></tr>
-					<tr><td>5</td><td>Name</td></tr>
-					<tr><td>6</td><td>Name</td></tr>
-					<tr><td>7</td><td>Name</td></tr>
-					<tr><td>8</td><td>Name</td></tr>
-					<tr><td>9</td><td>Name</td></tr>
-					<tr><td>10</td><td>Name</td></tr>
-				</table>
-			</div>
-		</div>
-	*/
-	?>
+	<?php endif; ?>
 </div>
-<!-- RIGHT PANE END -->
