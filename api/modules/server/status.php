@@ -1,4 +1,5 @@
 <?php require_once '../../module.php';
+require_once '../../launcher_support.php';
 
 $response['version']['module'] = 1;
 
@@ -39,45 +40,11 @@ function describeServerStatus($statusConfig) {
 	);
 }
 
-function canUseCacheDirectory($cacheDirectory) {
-	if (is_dir($cacheDirectory)) {
-		return is_writable($cacheDirectory);
-	}
-
-	return @mkdir($cacheDirectory, 0755, true);
-}
-
-function loadServerStatus($statusConfig) {
-	$cacheDirectory = __DIR__ . '/../../../engine/cache';
-
-	if (!canUseCacheDirectory($cacheDirectory)) {
-		return describeServerStatus($statusConfig);
-	}
-
-	$serverStatusCache = new Cache($cacheDirectory . '/launcherServerStatus');
-	$serverStatusCache->setExpiration(SERVER_STATUS_CACHE_SECONDS);
-
-	if (!$serverStatusCache->hasExpired()) {
-		$cachedServerStatus = $serverStatusCache->load();
-
-		if (is_array($cachedServerStatus)) {
-			return $cachedServerStatus;
-		}
-	}
-
-	$serverStatus = describeServerStatus($statusConfig);
-	$serverStatusCache->setContent($serverStatus);
-	$serverStatusCache->save();
-
-	return $serverStatus;
-}
-
 $statusConfig = isset($config['status']) ? $config['status'] : array();
-$serverStatus = loadServerStatus($statusConfig);
 
-$response['data'] = $serverStatus;
+$response['data'] = loadCachedLauncherData('launcherServerStatus', SERVER_STATUS_CACHE_SECONDS, function () use ($statusConfig) {
+	return describeServerStatus($statusConfig);
+});
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-cache, no-store, must-revalidate');
-SendResponse($response);
+sendLauncherResponse($response);
 ?>
