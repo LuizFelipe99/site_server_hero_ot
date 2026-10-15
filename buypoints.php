@@ -53,7 +53,7 @@ if ($pix_is_available && isset($_POST['package_price'])) {
 }
 
 $checkout_payment = $pix_is_available ? find_buypoints_checkout_payment($pix_settings, $session_user_id) : null;
-$buypoints_balance = read_account_points((int) $session_user_id);
+$buypoints_balance = read_account_tibia_coins((int) $session_user_id);
 $buypoints_history = $pix_is_available ? fetch_account_pix_payments((int) $session_user_id, BUYPOINTS_HISTORY_SIZE) : array();
 $legacy_payment_methods_enabled = $config['paypal']['enabled'] || $config['pagseguro']['enabled'] || $config['paygol']['enabled'];
 
@@ -64,18 +64,18 @@ include 'layout/overall/header.php';
 		<div class="register-result register-result-success buypoints-result">
 			<span class="register-result-icon"><i class="fa fa-check"></i></span>
 			<h1>Pagamento confirmado!</h1>
-			<p><strong class="buypoints-highlight">+<?php echo number_format($checkout_payment['points'], 0, ',', '.'); ?> pontos</strong> foram adicionados à sua conta.</p>
-			<p>Seu saldo agora é de <strong><?php echo number_format($buypoints_balance, 0, ',', '.'); ?> pontos</strong>.</p>
+			<p><strong class="buypoints-highlight">+<?php echo number_format($checkout_payment['points'], 0, ',', '.'); ?> Tibia Coins</strong> foram adicionadas à sua conta.</p>
+			<p>Seu saldo agora é de <strong><?php echo number_format($buypoints_balance, 0, ',', '.'); ?> Tibia Coins</strong>. Abra a Store dentro do jogo para usar.</p>
 			<div class="register-result-actions">
-				<a class="btn btn-primary" href="shop.php"><i class="fa fa-shopping-cart"></i>&nbsp; Ir para a loja</a>
-				<a class="btn btn-default" href="buypoints.php"><i class="fa fa-plus"></i>&nbsp; Comprar mais pontos</a>
+				<a class="btn btn-primary" href="buypoints.php"><i class="fa fa-plus"></i>&nbsp; Comprar mais coins</a>
+				<a class="btn btn-default" href="myaccount.php"><i class="fa fa-user"></i>&nbsp; Minha conta</a>
 			</div>
 		</div>
 	<?php elseif ($checkout_payment !== null && $checkout_payment['status'] === PIX_PAYMENT_STATUS_PENDING): ?>
 		<div class="register-hero">
 			<span class="register-eyebrow"><i class="fa fa-qrcode"></i> Pagamento via Pix</span>
 			<h1>Pague com Pix</h1>
-			<p>Escaneie o QR Code ou use o Pix Copia e Cola no app do seu banco. Os pontos entram sozinhos assim que o pagamento for confirmado.</p>
+			<p>Escaneie o QR Code ou use o Pix Copia e Cola no app do seu banco. As Tibia Coins entram sozinhas assim que o pagamento for confirmado.</p>
 		</div>
 
 		<div class="buypoints-checkout" data-pix-payment="<?php echo (int) $checkout_payment['id']; ?>" data-pix-expires="<?php echo (int) $checkout_payment['expires_at']; ?>">
@@ -88,7 +88,7 @@ include 'layout/overall/header.php';
 
 			<div class="buypoints-checkout-details">
 				<dl class="buypoints-summary">
-					<div><dt>Pacote</dt><dd><?php echo number_format($checkout_payment['points'], 0, ',', '.'); ?> pontos</dd></div>
+					<div><dt>Pacote</dt><dd><?php echo number_format($checkout_payment['points'], 0, ',', '.'); ?> coins</dd></div>
 					<div><dt>Valor</dt><dd><?php echo format_pix_amount_for_display($checkout_payment['amount_cents']); ?></dd></div>
 					<div><dt>Expira em</dt><dd data-pix-countdown><?php echo format_pix_datetime($pix_settings, $checkout_payment['expires_at']); ?></dd></div>
 				</dl>
@@ -104,6 +104,10 @@ include 'layout/overall/header.php';
 					<li>Escolha <strong>Pagar com QR Code</strong> ou <strong>Pix Copia e Cola</strong>.</li>
 					<li>Confira o valor e confirme. Esta página atualiza sozinha.</li>
 				</ol>
+
+				<?php if ($pix_settings['simulate_approval'] === true): ?>
+					<p class="buypoints-test-hint"><i class="fa fa-flask"></i> Modo de teste: clique em <strong>Abrir instruções no Mercado Pago</strong> para simular o pagamento.</p>
+				<?php endif; ?>
 
 				<?php if ($checkout_payment['ticket_url'] !== ''): ?>
 					<a class="buypoints-ticket" href="<?php echo htmlspecialchars($checkout_payment['ticket_url']); ?>" target="_blank" rel="noopener"><i class="fa fa-external-link"></i> Abrir instruções no Mercado Pago</a>
@@ -183,16 +187,16 @@ include 'layout/overall/header.php';
 		<div class="register-result register-result-failure">
 			<span class="register-result-icon"><i class="fa fa-clock-o"></i></span>
 			<h1>Pix <?php echo strtolower(describe_pix_payment_status($checkout_payment['status'])); ?></h1>
-			<p>Esse Pix não pode mais ser pago. Gere um novo para comprar seus pontos.</p>
+			<p>Esse Pix não pode mais ser pago. Gere um novo para comprar suas Tibia Coins.</p>
 			<div class="register-result-actions">
 				<a class="btn btn-primary" href="buypoints.php"><i class="fa fa-qrcode"></i>&nbsp; Gerar novo Pix</a>
 			</div>
 		</div>
 	<?php else: ?>
 		<div class="register-hero">
-			<span class="register-eyebrow"><i class="fa fa-diamond"></i> Seu saldo: <?php echo number_format($buypoints_balance, 0, ',', '.'); ?> pontos</span>
-			<h1>Comprar pontos</h1>
-			<p>Pague com Pix e receba os pontos na hora, sem precisar enviar comprovante. Use os pontos na loja do site.</p>
+			<span class="register-eyebrow"><span class="buypoints-coin" aria-hidden="true"></span> Seu saldo: <?php echo number_format($buypoints_balance, 0, ',', '.'); ?> Tibia Coins</span>
+			<h1>Comprar Tibia Coins</h1>
+			<p>Pague com Pix e receba as coins na hora, sem precisar enviar comprovante. Use na Store dentro do jogo.</p>
 		</div>
 
 		<?php if (!empty($buypoints_errors)): ?>
@@ -218,23 +222,23 @@ include 'layout/overall/header.php';
 						<?php if ($package_bonus_points > 0): ?>
 							<span class="buypoints-bonus">+<?php echo number_format($package_bonus_points, 0, ',', '.'); ?> bônus</span>
 						<?php endif; ?>
-						<i class="fa fa-diamond buypoints-package-icon"></i>
+						<span class="buypoints-package-icon buypoints-coin" aria-hidden="true"></span>
 						<strong><?php echo number_format($package_points, 0, ',', '.'); ?></strong>
-						<span class="buypoints-package-unit">pontos</span>
+						<span class="buypoints-package-unit">Tibia Coins</span>
 						<span class="buypoints-package-price">R$ <?php echo number_format($package_price, 2, ',', '.'); ?></span>
 					</button>
 				<?php endforeach; ?>
 			</form>
 
 			<ul class="register-rules buypoints-notes">
-				<li><i class="fa fa-bolt"></i><span>Os pontos entram automaticamente assim que o banco confirma o Pix, normalmente em segundos.</span></li>
+				<li><i class="fa fa-bolt"></i><span>As coins entram automaticamente assim que o banco confirma o Pix, normalmente em segundos. Se estiver online, é só reabrir a Store.</span></li>
 				<li><i class="fa fa-clock-o"></i><span>Cada Pix vale por <?php echo (int) $pix_settings['expiration_minutes']; ?> minutos. Se expirar, é só gerar outro.</span></li>
 				<li><i class="fa fa-lock"></i><span>O pagamento é processado pelo Mercado Pago. Nós nunca vemos os dados do seu banco.</span></li>
 			</ul>
 		<?php else: ?>
 			<div class="account-notice account-notice-info">
 				<i class="fa fa-info-circle"></i>
-				<div>A compra de pontos por Pix está indisponível no momento.<?php if (is_admin($user_data)): ?> Para ativar, configure <code>$config['pix']</code> no config.php com o Access Token do Mercado Pago.<?php endif; ?></div>
+				<div>A compra de Tibia Coins está indisponível no momento.<?php if (is_admin($user_data)): ?> Para ativar, crie o arquivo <code>pix.config.php</code> (veja o <code>pix.config.example.php</code>) com o Access Token do Mercado Pago.<?php endif; ?></div>
 			</div>
 		<?php endif; ?>
 
@@ -243,7 +247,7 @@ include 'layout/overall/header.php';
 			<div class="buypoints-history">
 				<?php foreach ($buypoints_history as $history_payment): ?>
 					<a class="buypoints-history-row" href="buypoints.php?pix=<?php echo (int) $history_payment['id']; ?>">
-						<span class="buypoints-history-points"><i class="fa fa-diamond"></i> <?php echo number_format($history_payment['points'], 0, ',', '.'); ?> pontos</span>
+						<span class="buypoints-history-points"><span class="buypoints-coin" aria-hidden="true"></span> <?php echo number_format($history_payment['points'], 0, ',', '.'); ?> coins</span>
 						<span class="buypoints-history-amount"><?php echo format_pix_amount_for_display($history_payment['amount_cents']); ?></span>
 						<span class="buypoints-history-date"><?php echo format_pix_datetime($pix_settings, $history_payment['created_at']); ?></span>
 						<span class="buypoints-status buypoints-status-<?php echo htmlspecialchars($history_payment['status']); ?>"><?php echo describe_pix_payment_status($history_payment['status']); ?></span>

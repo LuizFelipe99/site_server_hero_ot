@@ -1718,7 +1718,18 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	box-shadow: 0 14px 30px -16px rgba(255, 122, 26, 0.55);
 }
 .buypoints-package.has-bonus { border-color: rgba(232, 184, 90, 0.35); }
-.buypoints-package-icon { margin-bottom: 6px; font-size: 1.5rem; color: var(--color-gold); filter: drop-shadow(0 0 8px rgba(232, 184, 90, 0.45)); }
+.buypoints-coin {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	vertical-align: -5px;
+	background: url('../../images/tibia-coins.png') 0 0 / 1200% 100% no-repeat;
+	image-rendering: pixelated;
+	animation: buypoints-coin-shine 1.4s steps(12, jump-none) infinite;
+}
+.buypoints-package-icon.buypoints-coin { width: 64px; height: 64px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(181, 120, 255, 0.45)); }
+.buypoints-test-hint { margin: 0 0 12px; padding: 8px 12px; font-size: 0.85rem; color: #ffcf7a; background: rgba(255, 170, 60, 0.08); border: 1px dashed rgba(255, 190, 90, 0.4); border-radius: var(--radius-control); }
+@keyframes buypoints-coin-shine { to { background-position: 100% 0; } }
 .buypoints-package strong { font-family: var(--font-display); font-size: 1.7rem; line-height: 1; color: var(--color-gold-light); }
 .buypoints-package-unit { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
 .buypoints-package-price {
@@ -1790,7 +1801,6 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .buypoints-history-row:hover { color: var(--color-text); border-color: var(--color-border-strong); }
 .buypoints-history-points { font-weight: 600; color: var(--color-text); }
 .buypoints-history-row .buypoints-status { justify-self: end; }
-.buypoints-history-points .fa { color: var(--color-gold); }
 .buypoints-status { display: inline-block; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; border-radius: 999px; border: 1px solid transparent; }
 .buypoints-status-pending { color: #ffcf7a; background: rgba(255, 170, 60, 0.1); border-color: rgba(255, 190, 90, 0.35); }
 .buypoints-status-credited { color: var(--color-success); background: rgba(62, 168, 95, 0.12); border-color: rgba(143, 224, 168, 0.35); }

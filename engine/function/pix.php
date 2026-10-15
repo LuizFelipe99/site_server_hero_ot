@@ -22,6 +22,7 @@ const PIX_DEFAULT_SETTINGS = array(
 	'api_url' => 'https://api.mercadopago.com',
 	'simulate_approval' => false,
 	'fallback_payer_email_domain' => 'heroot.com.br',
+	'coin_type' => 'transferable',
 	'webhook_secret' => '',
 	'expiration_minutes' => 30,
 	'timezone' => 'America/Sao_Paulo',
@@ -40,6 +41,12 @@ const PIX_DEFAULT_SETTINGS = array(
 		100 => 1200
 	)
 );
+
+const PIX_COIN_TYPES = array(
+	'normal' => array('column' => 'coins', 'transaction_coin_type' => 1),
+	'transferable' => array('column' => 'coins_transferable', 'transaction_coin_type' => 3)
+);
+const PIX_COIN_TRANSACTION_TYPE_ADD = 1;
 
 const PIX_PRIVATE_SETTINGS_FILE = __DIR__ . '/../../pix.config.php';
 const PIX_EXTERNAL_REFERENCE_PREFIX = 'heroot-pix-';
@@ -263,25 +270,19 @@ function close_pix_payment($payment_id, $closed_status) {
 	mysqli_stmt_execute($close_statement);
 }
 
-function ensure_znote_account_row($account_id) {
-	global $connect;
-
-	$created_at = time();
-	$insert_statement = mysqli_prepare($connect, "INSERT INTO `znote_accounts` (`account_id`, `ip`, `created`, `points`, `flag`) SELECT ?, 0, ?, 0, '' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `znote_accounts` WHERE `account_id` = ?)");
-	mysqli_stmt_bind_param($insert_statement, 'iii', $account_id, $created_at, $account_id);
-	mysqli_stmt_execute($insert_statement);
+function resolve_pix_coin_type($pix_settings) {
+	return isset(PIX_COIN_TYPES[$pix_settings['coin_type']]) ? PIX_COIN_TYPES[$pix_settings['coin_type']] : PIX_COIN_TYPES['transferable'];
 }
 
-function read_account_points($account_id) {
+function read_account_tibia_coins($account_id) {
 	global $connect;
 
-	ensure_znote_account_row($account_id);
-	$points_statement = mysqli_prepare($connect, 'SELECT `points` FROM `znote_accounts` WHERE `account_id` = ? LIMIT 1');
-	mysqli_stmt_bind_param($points_statement, 'i', $account_id);
-	mysqli_stmt_execute($points_statement);
-	$points_row = mysqli_fetch_assoc(mysqli_stmt_get_result($points_statement));
+	$coins_statement = mysqli_prepare($connect, 'SELECT `coins`, `coins_transferable` FROM `accounts` WHERE `id` = ? LIMIT 1');
+	mysqli_stmt_bind_param($coins_statement, 'i', $account_id);
+	mysqli_stmt_execute($coins_statement);
+	$coins_row = mysqli_fetch_assoc(mysqli_stmt_get_result($coins_statement));
 
-	return $points_row ? (int) $points_row['points'] : 0;
+	return $coins_row ? (int) $coins_row['coins'] + (int) $coins_row['coins_transferable'] : 0;
 }
 
 function resolve_pix_payer_email($pix_settings, $account_id, $account_email) {
@@ -294,10 +295,10 @@ function resolve_pix_payer_email($pix_settings, $account_id, $account_email) {
 	return 'conta' . (int) $account_id . '@' . $pix_settings['fallback_payer_email_domain'];
 }
 
-function credit_pix_payment($pix_payment) {
+function credit_pix_payment($pix_settings, $pix_payment) {
 	global $connect;
 
-	ensure_znote_account_row((int) $pix_payment['account_id']);
+	$coin_type = resolve_pix_coin_type($pix_settings);
 	$credited_at = time();
 	$payment_id = (int) $pix_payment['id'];
 
@@ -312,14 +313,20 @@ function credit_pix_payment($pix_payment) {
 		return false;
 	}
 
-	$points_statement = mysqli_prepare($connect, 'UPDATE `znote_accounts` SET `points` = COALESCE(`points`, 0) + ? WHERE `account_id` = ? LIMIT 1');
-	mysqli_stmt_bind_param($points_statement, 'ii', $pix_payment['points'], $pix_payment['account_id']);
-	mysqli_stmt_execute($points_statement);
+	$coins_statement = mysqli_prepare($connect, 'UPDATE `accounts` SET `' . $coin_type['column'] . '` = `' . $coin_type['column'] . '` + ? WHERE `id` = ? LIMIT 1');
+	mysqli_stmt_bind_param($coins_statement, 'ii', $pix_payment['points'], $pix_payment['account_id']);
+	mysqli_stmt_execute($coins_statement);
 
-	if (mysqli_stmt_affected_rows($points_statement) !== 1) {
+	if (mysqli_stmt_affected_rows($coins_statement) !== 1) {
 		mysqli_rollback($connect);
 		return false;
 	}
+
+	$transaction_type = PIX_COIN_TRANSACTION_TYPE_ADD;
+	$transaction_description = 'Compra via Pix #' . $payment_id . ' (' . format_pix_amount_for_display($pix_payment['amount_cents']) . ')';
+	$transaction_statement = mysqli_prepare($connect, 'INSERT INTO `coins_transactions` (`account_id`, `type`, `coin_type`, `amount`, `description`) VALUES (?, ?, ?, ?, ?)');
+	mysqli_stmt_bind_param($transaction_statement, 'iiiis', $pix_payment['account_id'], $transaction_type, $coin_type['transaction_coin_type'], $pix_payment['points'], $transaction_description);
+	mysqli_stmt_execute($transaction_statement);
 
 	mysqli_commit($connect);
 	return true;
@@ -481,7 +488,7 @@ function synchronize_pix_payment($pix_settings, $pix_payment) {
 	store_pix_provider_status($pix_payment['id'], $provider_order['status'], $provider_order['status_detail'] . ' | pagamento: ' . $provider_order['payment_status'] . '/' . $provider_order['payment_status_detail']);
 
 	if (is_pix_provider_order_paid($provider_order)) {
-		credit_pix_payment($pix_payment);
+		credit_pix_payment($pix_settings, $pix_payment);
 		return fetch_pix_payment($pix_payment['id']);
 	}
 

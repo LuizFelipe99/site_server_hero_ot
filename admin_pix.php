@@ -37,20 +37,20 @@ include 'layout/overall/header.php';
 	<div class="register-hero">
 		<span class="register-eyebrow"><i class="fa fa-qrcode"></i> Administração</span>
 		<h1>Pagamentos Pix</h1>
-		<p>Últimos <?php echo ADMIN_PIX_PAYMENTS_LIMIT; ?> pedidos de pontos via Pix.<?php echo $pix_settings['simulate_approval'] === true ? ' <strong>Modo de teste ativo: os pagamentos são aprovados automaticamente.</strong>' : ''; ?></p>
+		<p>Últimos <?php echo ADMIN_PIX_PAYMENTS_LIMIT; ?> compras de Tibia Coins via Pix.<?php echo $pix_settings['simulate_approval'] === true ? ' <strong>Modo de teste ativo: abra o link do Mercado Pago de um Pix para simular o pagamento.</strong>' : ''; ?></p>
 	</div>
 
 	<?php if (!is_pix_available($pix_settings)): ?>
 		<div class="account-notice account-notice-warning">
 			<i class="fa fa-exclamation-triangle"></i>
-			<div>O Pix está desativado. Configure <code>$config['pix']</code> no config.php com <code>'enabled' => true</code> e o Access Token do Mercado Pago.</div>
+			<div>O Pix está desativado. Crie o arquivo <code>pix.config.php</code> (veja o <code>pix.config.example.php</code>) com <code>'enabled' => true</code> e o Access Token do Mercado Pago.</div>
 		</div>
 	<?php endif; ?>
 
 	<div class="admin-pix-stats">
 		<div><strong><?php echo format_pix_amount_for_display($admin_pix_summary['credited_cents']); ?></strong><span>recebidos</span></div>
 		<div><strong><?php echo $admin_pix_summary['credited_count']; ?></strong><span>pagamentos confirmados</span></div>
-		<div><strong><?php echo number_format($admin_pix_summary['credited_points'], 0, ',', '.'); ?></strong><span>pontos entregues</span></div>
+		<div><strong><?php echo number_format($admin_pix_summary['credited_points'], 0, ',', '.'); ?></strong><span>coins entregues</span></div>
 		<div><strong><?php echo $admin_pix_summary['pending_count']; ?></strong><span>aguardando</span></div>
 	</div>
 
@@ -64,7 +64,7 @@ include 'layout/overall/header.php';
 						<th>#</th>
 						<th>Conta</th>
 						<th>Valor</th>
-						<th>Pontos</th>
+						<th>Coins</th>
 						<th>Status</th>
 						<th>Criado</th>
 						<th>Pago</th>

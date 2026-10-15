@@ -51,7 +51,7 @@
 					</li>
 					<li><a href="shop.php"><i class="fa fa-shopping-cart"></i> Loja</a>
 						<ul>
-							<li><a href="buypoints.php">Comprar pontos</a> </li>
+							<li><a href="buypoints.php">Comprar Tibia Coins</a> </li>
 							<?php if ($config['shop_auction']['characterAuction']): ?>
 								<li><a href="auctionChar.php">Leilão de personagens</a> </li>
 							<?php endif; ?>
