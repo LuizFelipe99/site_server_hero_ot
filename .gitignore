@@ -2,3 +2,4 @@
 engine/cache/*
 !engine/cache/.gitkeep
 .idea
+pix.config.php

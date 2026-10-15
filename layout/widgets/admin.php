@@ -28,6 +28,9 @@
 			<li>
 				<a href='admin_auction.php'>Admin Auction</a>
 			</li>
+			<li>
+				<a href='admin_pix.php'>Pagamentos Pix</a>
+			</li>
 			<?php
 			$new = 0;
 			$cat = 4; //Category ID for feedback section
