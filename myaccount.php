@@ -1,6 +1,14 @@
 <?php require_once 'engine/init.php';
 protect_page();
 include 'layout/overall/header.php';
+
+$account_notices = array();
+
+function add_account_notice($notice_type, $notice_text, $notice_items = array()) {
+	global $account_notices;
+	$account_notices[] = array('type' => $notice_type, 'text' => $notice_text, 'items' => $notice_items);
+}
+
 #region CANCEL CHARACTER DELETE
 $undelete_id = @$_GET['cancel_delete_id'];
 if($undelete_id) {
@@ -8,15 +16,13 @@ if($undelete_id) {
 	$undelete_q1 = mysql_select_single('SELECT `character_name` FROM `znote_deleted_characters` WHERE `done` = 0 AND `id` = ' . $undelete_id . ' AND `original_account_id` = ' . $session_user_id . ' AND NOW() < `time`');
 	if($undelete_q1) {
 		mysql_delete('DELETE FROM `znote_deleted_characters` WHERE `id` = ' . $undelete_id);
-		echo 'Pending delete of ' . $undelete_q1['character_name'] . ' has been successfully canceled.<br/>';
+		add_account_notice('success', 'A exclusão de ' . htmlspecialchars($undelete_q1['character_name']) . ' foi cancelada.');
 	}
 }
 #endregion
 
-// Variable used to check if main page should be rendered after handling POST (Change comment page)
 $render_page = true;
 
-// Handle GET (verify email)
 if (isset($_GET['authenticate']) && $config['mailserver']['myaccount_verify_email']):
 	// If we need to process email verification
 	if (isset($_GET['u']) && isset($_GET['k'])) {
@@ -78,38 +84,31 @@ if (isset($_GET['authenticate']) && $config['mailserver']['myaccount_verify_emai
 	}
 endif;
 
-// Handle POST
 if (!empty($_POST['selected_character'])) {
 	if (!empty($_POST['action'])) {
-		// Validate token
 		if (!Token::isValid($_POST['token'])) {
 			exit();
 		}
-		// Sanitize values
 		$action = getValue($_POST['action']);
 		$char_name = getValue($_POST['selected_character']);
+		$safe_char_name = htmlspecialchars($char_name);
 
-		// Handle actions
 		switch($action) {
-			// Change character comment PAGE2 (Success).
 			case 'update_comment':
 				if (user_character_account_id($char_name) === $session_user_id) {
 					user_update_comment(user_character_id($char_name), getValue($_POST['comment']));
-					echo 'Successfully updated comment.';
+					add_account_notice('success', 'Comentário de ' . $safe_char_name . ' atualizado.');
 				}
 				break;
-			// end
 
-			// Hide character
 			case 'toggle_hide':
 				$hide = (user_character_hide($char_name) == 1 ? 0 : 1);
 				if (user_character_account_id($char_name) === $session_user_id) {
 					user_character_set_hide(user_character_id($char_name), $hide);
+					add_account_notice('success', $safe_char_name . ($hide == 1 ? ' agora está oculto nas listas públicas.' : ' voltou a aparecer nas listas públicas.'));
 				}
 				break;
-			// end
 
-			// DELETE character
 			case 'delete_character':
 				if (user_character_account_id($char_name) === $session_user_id) {
 					$charid = user_character_id($char_name);
@@ -117,21 +116,19 @@ if (!empty($_POST['selected_character'])) {
 						if ($config['ServerEngine'] === 'TFS_10') {
 							if (!user_is_online_10($charid)) {
 								if (guild_leader_gid($charid) === false) user_delete_character_soft($charid);
-								else echo 'Character is leader of a guild, you must disband the guild or change leadership before deleting character.';
-							} else echo 'Character must be offline first.';
+								else add_account_notice('error', $safe_char_name . ' é líder de uma guild. Desfaça a guild ou passe a liderança antes de excluir o personagem.');
+							} else add_account_notice('error', $safe_char_name . ' precisa estar offline para ser excluído.');
 						} else {
 							$chr_data = user_character_data($charid, 'online');
 							if ($chr_data['online'] != 1) {
 								if (guild_leader_gid($charid) === false) user_delete_character_soft($charid);
-								else echo 'Character is leader of a guild, you must disband the guild or change leadership before deleting character.';
-							} else echo 'Character must be offline first.';
+								else add_account_notice('error', $safe_char_name . ' é líder de uma guild. Desfaça a guild ou passe a liderança antes de excluir o personagem.');
+							} else add_account_notice('error', $safe_char_name . ' precisa estar offline para ser excluído.');
 						}
 					}
 				}
 				break;
-			// end
 
-			// CHANGE character name
 			case 'change_name':
 				$oldname = $char_name;
 				$newname = isset($_POST['newName']) ? getValue($_POST['newName']) : '';
@@ -142,67 +139,59 @@ if (!empty($_POST['selected_character'])) {
 					$player['online'] = (user_is_online_10($player['id'])) ? 1 : 0;
 				} else $player = mysql_select_single("SELECT `id`, `account_id`, `online` FROM `players` WHERE `name` = '$oldname'");
 
-				// Check if user is online
 				if ($player['online'] == 1) {
-					$errors[] = 'Character must be offline first.';
+					$errors[] = 'O personagem precisa estar offline.';
 				}
 
-				// Check if player has bough ticket
 				$accountId = $player['account_id'];
 				$order = mysql_select_single("SELECT `id`, `account_id` FROM `znote_shop_orders` WHERE `type`='4' AND `account_id` = '$accountId' LIMIT 1;");
 				if ($order === false) {
-					$errors[] = 'Did not find any name change tickets, buy them in our <a href="shop.php">shop!</a>';
+					$errors[] = 'Você não tem tickets de troca de nome. Eles estão disponíveis na <a href="shop.php">loja</a>.';
 				}
 
-				// Check if player and account matches
 				if ($session_user_id != $accountId || $session_user_id != $order['account_id']) {
 					if (empty($errors)) {
-						$errors[] = 'Failed to sync your account. :|';
+						$errors[] = 'Não foi possível confirmar sua conta. Entre novamente e tente outra vez.';
 					}
 				}
 
 				$newname = validate_name($newname);
 				if ($newname === false) {
-					$errors[] = 'Your name can not contain more than 2 words.';
+					$errors[] = 'O nome pode ter no máximo 2 palavras.';
 				} else {
 					if (empty($newname)) {
-						$errors[] = 'Please enter a name!';
+						$errors[] = 'Digite o novo nome.';
 					} else if (user_character_exist($newname) !== false) {
-						$errors[] = 'Sorry, that character name already exist.';
+						$errors[] = 'Já existe um personagem com esse nome.';
 					} else if (!preg_match("/^[a-zA-Z_ ]+$/", $newname)) {
-						$errors[] = 'Your name may only contain a-z, A-Z and spaces.';
+						$errors[] = 'O nome só pode ter letras (a-z, A-Z) e espaços.';
 					} else if (strlen($newname) < $config['minL'] || strlen($newname) > $config['maxL']) {
-						$errors[] = 'Your character name must be between ' . $config['minL'] . ' - ' . $config['maxL'] . ' characters long.';
+						$errors[] = 'O nome deve ter entre ' . $config['minL'] . ' e ' . $config['maxL'] . ' caracteres.';
 					} else if (!ctype_upper($newname[0])) {
-						$errors[] = 'The first letter of a name has to be a capital letter!';
+						$errors[] = 'A primeira letra do nome precisa ser maiúscula.';
 					}
 
-					// name restriction
 					$resname = explode(" ", $_POST['newName']);
 					foreach($resname as $res) {
 						if(in_array(strtolower($res), $config['invalidNameTags'])) {
-							$errors[] = 'Your username contains a restricted word.';
+							$errors[] = 'O nome contém uma palavra proibida.';
 						} else if(strlen($res) == 1) {
-							$errors[] = 'Too short words in your name.';
+							$errors[] = 'O nome tem palavras curtas demais.';
 						}
 					}
 				}
 
 				if (!empty($newname) && empty($errors)) {
-					echo 'You have successfully changed your character name to ' . $newname . '.';
+					add_account_notice('success', 'Pronto! ' . $safe_char_name . ' agora se chama ' . htmlspecialchars($newname) . '.');
 					mysql_update("UPDATE `players` SET `name`='$newname' WHERE `id`='".$player['id']."' LIMIT 1;");
 					mysql_delete("DELETE FROM `znote_shop_orders` WHERE `id`='".$order['id']."' LIMIT 1;");
 
 				} else if (!empty($errors)) {
-					echo '<font color="red"><b>';
-					echo output_errors($errors);
-					echo '</b></font>';
+					add_account_notice('error', 'Não foi possível trocar o nome de ' . $safe_char_name . '.', $errors);
 				}
 
 				break;
-			// end
 
-			// Change character sex
 			case 'change_gender':
 				if (user_character_account_id($char_name) === $session_user_id) {
 					$char_id = (int)user_character_id($char_name);
@@ -212,223 +201,311 @@ if (!empty($_POST['selected_character'])) {
 						$chr_data['online'] = user_is_online_10($char_id) ? 1 : 0;
 					} else $chr_data = user_character_data($char_id, 'online');
 					if ($chr_data['online'] != 1) {
-						// Verify that we are not messing around with data
 						if ($account_id != $user_data['id']) die("wtf? Something went wrong, try relogging.");
 
-						// Fetch character tickets
 						$tickets = shop_account_gender_tickets($account_id);
 						if ($tickets !== false || $config['free_sex_change'] == true) {
-							// They are allowed to change gender
 							$last = false;
 							$infinite = false;
 							$tks = 0;
-							// Do we have any infinite tickets?
 							foreach ($tickets as $ticket) {
 								if ($ticket['count'] == 0) $infinite = true;
 								else if ($ticket > 0 && $infinite === false) $tks += (int)$ticket['count'];
 							}
 							if ($infinite === true) $tks = 0;
 							$dbid = (int)$tickets[0]['id'];
-							// If they dont have unlimited tickets, remove a count from their ticket.
-							if ($tickets[0]['count'] > 1) { // Decrease count
+							if ($tickets[0]['count'] > 1) {
 								$tks--;
 								$tkr = ((int)$tickets[0]['count'] - 1);
 								shop_update_row_count($dbid, $tkr);
-							} else if ($tickets[0]['count'] == 1) { // Delete record
+							} else if ($tickets[0]['count'] == 1) {
 								shop_delete_row_order($dbid);
 								$tks--;
 							}
 
-							// Change character gender:
-							//
 							user_character_change_gender($char_name);
-							echo 'You have successfully changed gender on character '. $char_name .'.';
-							if ($tks > 0) echo '<br>You have '. $tks .' gender change tickets left.';
-							else if ($infinite !== true) echo '<br>You are out of tickets.';
-						} else echo 'You don\'t have any character gender tickets, buy them in the <a href="shop.php">SHOP</a>!';
-					} else echo 'Your character must be offline.';
+							$gender_ticket_message = '';
+							if ($tks > 0) $gender_ticket_message = ' Você ainda tem ' . $tks . ' ticket(s) de troca de sexo.';
+							else if ($infinite !== true) $gender_ticket_message = ' Seus tickets de troca de sexo acabaram.';
+							add_account_notice('success', 'O sexo de ' . $safe_char_name . ' foi trocado.' . $gender_ticket_message);
+						} else add_account_notice('error', 'Você não tem tickets de troca de sexo. Eles estão disponíveis na <a href="shop.php">loja</a>.');
+					} else add_account_notice('error', $safe_char_name . ' precisa estar offline para trocar de sexo.');
 				}
 				break;
-			// end
 
-			// Change character comment PAGE1:
 			case 'change_comment':
-				$render_page = false; // Regular "myaccount" page should not render
+				$render_page = false;
 				if (user_character_account_id($char_name) === $session_user_id) {
 					$comment_data = user_znote_character_data(user_character_id($char_name), 'comment');
 					?>
-					<!-- Changing comment MARKUP -->
-					<h1>Change comment on:</h1>
-					<form action="" method="post">
-						<ul>
-							<li>
+					<section class="account-page">
+						<a class="account-back" href="myaccount.php"><i class="fa fa-arrow-left"></i> Voltar para minha conta</a>
+						<div class="account-panel account-comment">
+							<h1>Comentário do personagem</h1>
+							<p>Esse texto aparece no perfil público de <strong><?php echo $safe_char_name; ?></strong>.</p>
+							<form action="" method="post">
 								<input name="action" type="hidden" value="update_comment">
-								<input name ="selected_character" type="text" value="<?php echo $char_name; ?>" readonly="readonly">
-							</li>
-							<li>
-								<font class="profile_font" name="profile_font_comment">Comment:</font> <br>
-								<textarea name="comment" cols="70" rows="10"><?php echo $comment_data['comment']; ?></textarea>
-							</li>
-							<?php
-								/* Form file */
-								Token::create();
-							?>
-							<li><input type="submit" value="Update Comment"></li>
-						</ul>
-					</form>
+								<input name="selected_character" type="hidden" value="<?php echo $safe_char_name; ?>">
+								<label for="account_comment">Comentário</label>
+								<textarea id="account_comment" name="comment" rows="8" placeholder="Conte um pouco sobre seu personagem..."><?php echo $comment_data['comment']; ?></textarea>
+								<?php Token::create(); ?>
+								<div class="account-comment-actions">
+									<button type="submit"><i class="fa fa-check"></i>&nbsp; Salvar comentário</button>
+									<a class="btn btn-default" href="myaccount.php">Cancelar</a>
+								</div>
+							</form>
+						</div>
+					</section>
 					<?php
 				}
 				break;
-			//end
 		}
 	}
+}
+
+function build_account_outfit_url($outfit_row) {
+	$show_outfits = config('show_outfits');
+
+	if (empty($show_outfits['characterprofile']) || empty($show_outfits['imageServer']) || (int) $outfit_row['looktype'] <= 0) {
+		return null;
+	}
+
+	return $show_outfits['imageServer'] . '?' . http_build_query(array(
+		'id' => (int) $outfit_row['looktype'],
+		'addons' => (int) $outfit_row['lookaddons'],
+		'head' => (int) $outfit_row['lookhead'],
+		'body' => (int) $outfit_row['lookbody'],
+		'legs' => (int) $outfit_row['looklegs'],
+		'feet' => (int) $outfit_row['lookfeet']
+	));
+}
+
+function load_account_outfits($account_id) {
+	$outfit_rows = mysql_select_multi("SELECT `name`, `looktype`, `lookaddons`, `lookhead`, `lookbody`, `looklegs`, `lookfeet` FROM `players` WHERE `account_id` = " . (int) $account_id . ";");
+	$outfit_urls_by_name = array();
+
+	if (empty($outfit_rows)) {
+		return $outfit_urls_by_name;
+	}
+
+	foreach ($outfit_rows as $outfit_row) {
+		$outfit_urls_by_name[$outfit_row['name']] = build_account_outfit_url($outfit_row);
+	}
+
+	return $outfit_urls_by_name;
+}
+
+function describe_account_vocation($vocation_name) {
+	return preg_match('/^\d+ - Unknown$/', $vocation_name) ? null : $vocation_name;
+}
+
+function describe_account_last_login($last_login) {
+	return $last_login === 'Never.' ? 'Nunca entrou' : $last_login;
+}
+
+function mask_account_email($email) {
+	$email_parts = explode('@', $email, 2);
+
+	if (count($email_parts) !== 2 || $email_parts[0] === '') {
+		return $email;
+	}
+
+	$visible_start = substr($email_parts[0], 0, min(2, strlen($email_parts[0])));
+	return $visible_start . str_repeat('•', max(3, strlen($email_parts[0]) - 2)) . '@' . $email_parts[1];
 }
 
 if ($render_page) {
 	$char_count = user_character_list_count($session_user_id);
 	$pending_delete = user_pending_deletes($session_user_id);
+	$account_pending_deletions = array();
 	if ($pending_delete) {
 		foreach($pending_delete as $delete) {
 			if(new DateTime($delete['time']) > new DateTime())
-				echo '<b>CAUTION!</b> Your character with name <b>' . $delete['character_name'] . ' will be deleted on ' . $delete['time'] . '</b>. <a href="myaccount.php?cancel_delete_id=' . $delete['id'] . '">Cancel this operation.</a><br/>';
+				$account_pending_deletions[] = $delete;
 			else {
 				user_delete_character(user_character_id($delete['character_name']));
 				mysql_update('UPDATE `znote_deleted_characters` SET `done` = 1 WHERE `id` = '. $delete['id']. '');
-				echo '<b>Character ' . $delete['character_name'] . ' has been deleted</b>. This operation was requested by owner of this account.';
+				add_account_notice('info', htmlspecialchars($delete['character_name']) . ' foi excluído, como solicitado.');
 				$char_count--;
 			}
 		}
 	}
 
+	$account_display_name = ($config['ServerEngine'] !== 'OTHIRE') ? $user_data['name'] : $user_data['id'];
+	$account_is_premium = ($config['ServerEngine'] !== 'OTHIRE') ? $user_data['premdays'] != 0 : $user_data['premend'] != 0;
+	$account_premium_text = ($config['ServerEngine'] !== 'OTHIRE')
+		? $user_data['premdays'] . ' dia' . ($user_data['premdays'] == 1 ? '' : 's') . ' de premium'
+		: 'Premium até ' . date('d/m/Y', (int) $user_data['premend']);
+	$account_created_at = isset($user_znote_data['created']) ? (int) $user_znote_data['created'] : 0;
+	$account_points = isset($user_znote_data['points']) ? (int) $user_znote_data['points'] : 0;
+	$account_verifies_email = $config['mailserver']['myaccount_verify_email'];
+	$account_uses_two_factor = $config['ServerEngine'] === 'TFS_10' && $config['twoFactorAuthenticator'];
+	$account_two_factor_enabled = false;
+	if ($account_uses_two_factor) {
+		$query = mysql_select_single("SELECT `secret` FROM `accounts` WHERE `id`='".(int)$session_user_id."' LIMIT 1;");
+		$account_two_factor_enabled = ($query['secret'] === NULL) ? false : true;
+	}
+	$char_array = user_character_list($user_data['id']);
+	$account_outfit_urls = $char_array ? load_account_outfits($user_data['id']) : array();
 	?>
-	<div id="myaccount">
-		<h1>My account</h1>
-		<p>Welcome to your account page, <?php if ($config['ServerEngine'] !== 'OTHIRE') echo $user_data['name']; else echo $user_data['id']; ?><br>
-			<?php if ($config['ServerEngine'] !== 'OTHIRE') {
-				if ($user_data['premdays'] != 0) {
-					echo 'You have ' .$user_data['premdays']. ' remaining premium account days.';
-				} else {
-					echo 'You are free account.';
-				}
-			} else {
-				if ($user_data['premend'] != 0) {
-					echo 'Your premium account will last till ';
-					echo date("d/m/Y", $user_data['premend']);
-				} else {
-					echo 'You do not have premium account days.';
-				}
-			}
-			if ($config['mailserver']['myaccount_verify_email']):
-				?><br>Email: <?php echo $user_data['email'];
-				if ($user_znote_data['active_email'] == 1) {
-					?> (Verified).<?php
-				} else {
-					?><br><strong>Your email is not verified! <a href="?authenticate">Please verify it</a>.</strong><?php
-				}
-			endif; ?>
-		</p>
-		<?php
-		if ($config['ServerEngine'] === 'TFS_10' && $config['twoFactorAuthenticator']) {
-			$query = mysql_select_single("SELECT `secret` FROM `accounts` WHERE `id`='".(int)$session_user_id."' LIMIT 1;");
-			$status = ($query['secret'] === NULL) ? false : true;
-			?><p>Account security with Two-factor Authentication: <a href="twofa.php"><?php echo ($status) ? 'Enabled' : 'Disabled'; ?></a></p><?php
-		}
-		?>
-		<h2>Character List: <?php echo $char_count; ?> characters.</h2>
-		<?php
-		// Echo character list!
-		$char_array = user_character_list($user_data['id']);
-		// Design and present the list
-		if ($char_array) {
-			?>
-			<table id="myaccountTable" class="table table-striped table-hover">
-				<tr class="yellow">
-					<th>NAME</th><th>LEVEL</th><th>VOCATION</th><th>TOWN</th><th>LAST LOGIN</th><th>STATUS</th><th>HIDE</th>
-				</tr>
-				<?php
-				$characters = array();
-				foreach ($char_array as $value) {
-					// characters: [0] = name, [1] = level, [2] = vocation, [3] = town_id, [4] = lastlogin, [5] = online
-					echo '<tr>';
-					echo '<td><a href="characterprofile.php?name='. $value['name'] .'">'. $value['name'] .'</a></td><td>'. $value['level'] .'</td><td>'. $value['vocation'] .'</td><td>'. $value['town_id'] .'</td><td>'. $value['lastlogin'] .'</td><td>'. $value['online'] .'</td><td>'. hide_char_to_name(user_character_hide($value['name'])) .'</td>';
-					echo '</tr>';
-					$characters[] = $value['name'];
-				}
-			?>
-			</table>
-			<!-- FORMS TO EDIT CHARACTER-->
-			<form action="" method="post">
-				<table class="table">
-					<tr>
-						<td>
-							<select id="selected_character" name="selected_character" class="form-control">
-							<?php
-							for ($i = 0; $i < $char_count; $i++) {
-								if (user_character_hide($characters[$i]) == 1) {
-									echo '<option value="'. $characters[$i] . '">'. $characters[$i] .'</option>';
-								} else {
-									echo '<option value="'. $characters[$i] . '">'. $characters[$i] .'</option>';
-								}
-							}
-							?>
-							</select>
-						</td>
-						<td>
-							<select id="action" name="action" class="form-control" onChange="changedOption(this)">
-								<option value="none" selected>Select action</option>
-								<option value="toggle_hide">Toggle hide</option>
-								<option value="change_comment">Change comment</option>
-								<option value="change_gender">Change gender</option>
-								<option value="change_name">Change name</option>
-								<option value="delete_character" class="needconfirmation">Delete character</option>
-							</select>
-						</td>
-						<td id="submit_form">
-							<?php
-								/* Form file */
-								Token::create();
-							?>
-							<input id="submit_button" type="submit" value="Submit" class="btn btn-primary btn-block"></input>
-						</td>
-					</tr>
-				</table>
-			</form>
-			<?php
-		} else {
-			echo 'You don\'t have any characters. Why don\'t you <a href="createcharacter.php">create one</a>?';
-		}
-		?>
-	</div>
+	<section class="account-page" id="myaccount">
+		<div class="account-hero">
+			<span class="account-avatar"><?php echo htmlspecialchars(strtoupper(substr((string) $account_display_name, 0, 1))); ?></span>
+			<div class="account-hero-content">
+				<span class="account-eyebrow">Minha conta</span>
+				<h1>Olá, <?php echo htmlspecialchars($account_display_name); ?></h1>
+				<ul class="account-badges">
+					<?php if ($account_is_premium): ?>
+						<li class="account-badge account-badge-premium"><i class="fa fa-star"></i> <?php echo $account_premium_text; ?></li>
+					<?php else: ?>
+						<li class="account-badge"><i class="fa fa-star-o"></i> Conta grátis</li>
+					<?php endif; ?>
+					<li class="account-badge"><i class="fa fa-diamond"></i> <?php echo $account_points; ?> pontos</li>
+					<?php if ($account_created_at > 0): ?>
+						<li class="account-badge"><i class="fa fa-calendar"></i> Desde <?php echo date('d/m/Y', $account_created_at); ?></li>
+					<?php endif; ?>
+				</ul>
+				<p class="account-email">
+					<i class="fa fa-envelope"></i> <?php echo htmlspecialchars(mask_account_email($user_data['email'])); ?>
+					<?php if ($account_verifies_email): ?>
+						<?php if ($user_znote_data['active_email'] == 1): ?>
+							<span class="account-status account-status-ok"><i class="fa fa-check"></i> verificado</span>
+						<?php else: ?>
+							<a class="account-status account-status-warning" href="?authenticate"><i class="fa fa-exclamation-circle"></i> verificar email</a>
+						<?php endif; ?>
+					<?php endif; ?>
+				</p>
+			</div>
+		</div>
+
+		<?php foreach ($account_notices as $account_notice): ?>
+			<div class="account-notice account-notice-<?php echo $account_notice['type']; ?>" role="status">
+				<i class="fa <?php echo $account_notice['type'] === 'error' ? 'fa-exclamation-triangle' : ($account_notice['type'] === 'success' ? 'fa-check-circle' : 'fa-info-circle'); ?>"></i>
+				<div>
+					<span><?php echo $account_notice['text']; ?></span>
+					<?php if (!empty($account_notice['items'])): ?>
+						<ul>
+							<?php foreach ($account_notice['items'] as $account_notice_item): ?>
+								<li><?php echo $account_notice_item; ?></li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				</div>
+			</div>
+		<?php endforeach; ?>
+
+		<?php foreach ($account_pending_deletions as $account_pending_deletion): ?>
+			<div class="account-notice account-notice-warning" role="alert">
+				<i class="fa fa-clock-o"></i>
+				<div>
+					<span><strong><?php echo htmlspecialchars($account_pending_deletion['character_name']); ?></strong> será excluído em <?php echo date('d/m/Y \à\s H:i', strtotime($account_pending_deletion['time'])); ?>.</span>
+				</div>
+				<a class="btn btn-default" href="myaccount.php?cancel_delete_id=<?php echo (int) $account_pending_deletion['id']; ?>">Cancelar exclusão</a>
+			</div>
+		<?php endforeach; ?>
+
+		<nav class="account-shortcuts" aria-label="Atalhos da conta">
+			<a class="account-shortcut" href="createcharacter.php"><i class="fa fa-user-plus"></i><span>Criar personagem</span></a>
+			<a class="account-shortcut" href="downloads.php"><i class="fa fa-download"></i><span>Baixar launcher</span></a>
+			<a class="account-shortcut" href="shop.php"><i class="fa fa-shopping-cart"></i><span>Loja</span></a>
+			<a class="account-shortcut" href="changepassword.php"><i class="fa fa-key"></i><span>Alterar senha</span></a>
+			<a class="account-shortcut" href="settings.php"><i class="fa fa-cog"></i><span>Configurações</span></a>
+			<?php if ($account_uses_two_factor): ?>
+				<a class="account-shortcut" href="twofa.php"><i class="fa fa-shield"></i><span>Verificação em 2 etapas</span><small class="<?php echo $account_two_factor_enabled ? 'is-on' : 'is-off'; ?>"><?php echo $account_two_factor_enabled ? 'Ativada' : 'Desativada'; ?></small></a>
+			<?php endif; ?>
+		</nav>
+
+		<div class="account-section-header">
+			<h2>Seus personagens <span><?php echo max(0, (int) $char_count); ?></span></h2>
+			<a class="btn" href="createcharacter.php"><i class="fa fa-plus"></i>&nbsp; Novo personagem</a>
+		</div>
+
+		<?php if ($char_array): ?>
+			<div class="account-characters">
+				<?php foreach ($char_array as $character): ?>
+					<?php
+						$character_name = $character['name'];
+						$character_safe_name = htmlspecialchars($character_name);
+						$character_is_online = strtoupper(trim(strip_tags($character['online']))) === 'ONLINE';
+						$character_is_hidden = user_character_hide($character_name) == 1;
+						$character_vocation = describe_account_vocation($character['vocation']);
+						$character_outfit_url = isset($account_outfit_urls[$character_name]) ? $account_outfit_urls[$character_name] : null;
+					?>
+					<article class="account-character<?php echo $character_is_online ? ' is-online' : ''; ?>">
+						<div class="account-character-main">
+							<div class="account-character-outfit">
+								<?php if ($character_outfit_url !== null): ?>
+									<img src="<?php echo htmlspecialchars($character_outfit_url); ?>" alt="" loading="lazy" onerror="this.remove()">
+								<?php endif; ?>
+								<i class="fa fa-user"></i>
+							</div>
+							<div class="account-character-info">
+								<a class="account-character-name" href="characterprofile.php?name=<?php echo urlencode($character_name); ?>"><?php echo $character_safe_name; ?></a>
+								<span class="account-character-level">Level <strong><?php echo (int) $character['level']; ?></strong><?php echo $character_vocation !== null ? ' · ' . htmlspecialchars($character_vocation) : ''; ?></span>
+								<ul class="account-character-meta">
+									<li class="account-presence<?php echo $character_is_online ? ' is-online' : ''; ?>"><span></span><?php echo $character_is_online ? 'Online' : 'Offline'; ?></li>
+									<li><i class="fa fa-map-marker"></i> <?php echo htmlspecialchars($character['town_id']); ?></li>
+									<li><i class="fa fa-clock-o"></i> <?php echo htmlspecialchars(describe_account_last_login($character['lastlogin'])); ?></li>
+									<?php if ($character_is_hidden): ?>
+										<li class="account-hidden-tag"><i class="fa fa-eye-slash"></i> Oculto</li>
+									<?php endif; ?>
+								</ul>
+							</div>
+						</div>
+						<form class="account-character-actions" action="myaccount.php" method="post">
+							<input type="hidden" name="selected_character" value="<?php echo $character_safe_name; ?>">
+							<?php Token::create(); ?>
+							<button type="submit" name="action" value="change_comment" class="account-action"><i class="fa fa-comment"></i> Comentário</button>
+							<button type="submit" name="action" value="toggle_hide" class="account-action"><i class="fa <?php echo $character_is_hidden ? 'fa-eye' : 'fa-eye-slash'; ?>"></i> <?php echo $character_is_hidden ? 'Mostrar' : 'Ocultar'; ?></button>
+							<button type="submit" name="action" value="change_gender" class="account-action"><i class="fa fa-venus-mars"></i> Trocar sexo</button>
+							<details class="account-rename">
+								<summary class="account-action"><i class="fa fa-pencil"></i> Trocar nome</summary>
+								<div class="account-rename-form">
+									<input type="text" name="newName" placeholder="Novo nome" autocomplete="off">
+									<button type="submit" name="action" value="change_name">Confirmar</button>
+								</div>
+							</details>
+							<button type="submit" name="action" value="delete_character" class="account-action account-action-danger" data-confirm="Excluir <?php echo $character_safe_name; ?>? A exclusão fica agendada e pode ser cancelada até a data marcada."><i class="fa fa-trash"></i> Excluir</button>
+						</form>
+					</article>
+				<?php endforeach; ?>
+			</div>
+		<?php else: ?>
+			<div class="account-empty">
+				<i class="fa fa-user-plus"></i>
+				<h3>Você ainda não tem personagens</h3>
+				<p>Crie seu primeiro personagem para começar a aventura.</p>
+				<a class="btn" href="createcharacter.php">Criar personagem</a>
+			</div>
+		<?php endif; ?>
+	</section>
 	<script>
-		function changedOption(e) {
-			// If selection is 'Change name' add a name field in the form
-			// Else remove name field if it exists
-			if (e.value == 'change_name') {
-				var lastCell = document.getElementById('submit_form');
-				var x = document.createElement('TD');
-				x.id = "new_name";
-				x.innerHTML = '<input type="text" name="newName" placeholder="New Name" class="form-control">';
-				lastCell.parentNode.insertBefore(x, lastCell);
-			} else {
-				var child = document.getElementById('new_name');
-				if (child) {
-					child.parentNode.removeChild(child);
-				}
-			}
-		}
-	</script>
-	<script src="engine/js/jquery-1.10.2.min.js" type="text/javascript"></script>
-	<script>
-		$(document).ready(function(){
-			$("#submit_button").click(function(e){
-				if ($("#action").find(":selected").attr('class') == "needconfirmation") {
-					var r = confirm("Do you really want to DELETE character: "+$('#selected_character').find(":selected").text()+"?")
-					if (r == false) {
-						e.preventDefault();
+		(function () {
+			Array.prototype.forEach.call(document.querySelectorAll('.account-character-actions'), function (actionForm) {
+				actionForm.addEventListener('submit', function (submitEvent) {
+					var submitter = submitEvent.submitter;
+
+					if (!submitter) {
+						return;
 					}
-				}
+
+					var confirmation = submitter.getAttribute('data-confirm');
+
+					if (confirmation && !window.confirm(confirmation)) {
+						submitEvent.preventDefault();
+						return;
+					}
+
+					if (submitter.value !== 'change_name') {
+						var renameInput = actionForm.querySelector('input[name="newName"]');
+
+						if (renameInput) {
+							renameInput.disabled = true;
+						}
+					}
+				});
 			});
-		});
+		})();
 	</script>
 	<?php
 }
