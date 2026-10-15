@@ -33,6 +33,41 @@ function buildBoostedOutfitImageUrl($outfitImageServer, $boostedRow) {
 	return $outfitImageServer . '?' . http_build_query($outfitParameters);
 }
 
+function resolveSiteBaseUrl() {
+	$isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+	$scheme = $isHttps ? 'https' : 'http';
+	$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+	$scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+	$siteRootPath = preg_replace('#/api/modules/server$#', '', $scriptDirectory);
+
+	return $scheme . '://' . $host . rtrim($siteRootPath, '/');
+}
+
+function slugifyCreatureName($creatureName) {
+	$creatureSlug = preg_replace('/[^a-z0-9]+/', '-', strtolower($creatureName));
+
+	return trim($creatureSlug, '-');
+}
+
+function buildLocalCreatureImageUrl($raceId, $creatureName) {
+	if ($raceId <= 0) {
+		return null;
+	}
+
+	$candidateImagePaths = array(
+		'images/creatures/' . $raceId . '-' . slugifyCreatureName($creatureName) . '.png',
+		'images/creatures/' . $raceId . '.png'
+	);
+
+	foreach ($candidateImagePaths as $relativeImagePath) {
+		if (is_file(__DIR__ . '/../../../' . $relativeImagePath)) {
+			return resolveSiteBaseUrl() . '/' . $relativeImagePath;
+		}
+	}
+
+	return null;
+}
+
 function describeBoosted($boostedTableName, $outfitImageServer) {
 	$boostedRow = fetchBoostedRow($boostedTableName);
 
@@ -40,10 +75,13 @@ function describeBoosted($boostedTableName, $outfitImageServer) {
 		return null;
 	}
 
+	$raceId = (int) $boostedRow['raceid'];
+	$localImageUrl = buildLocalCreatureImageUrl($raceId, $boostedRow['boostname']);
+
 	return array(
 		'name' => $boostedRow['boostname'],
-		'raceId' => (int) $boostedRow['raceid'],
-		'imageUrl' => buildBoostedOutfitImageUrl($outfitImageServer, $boostedRow)
+		'raceId' => $raceId,
+		'imageUrl' => $localImageUrl !== null ? $localImageUrl : buildBoostedOutfitImageUrl($outfitImageServer, $boostedRow)
 	);
 }
 
