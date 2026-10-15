@@ -1,16 +1,7 @@
 <?php
 	require_once __DIR__ . '/../../engine/function/boosted.php';
 
-	$boosted_cache = new Cache('engine/cache/boostedCreatures');
-	$boosted_cache->setExpiration(120);
-
-	if ($boosted_cache->hasExpired()) {
-		$boosted_creatures = describeBoostedCreatures();
-		$boosted_cache->setContent($boosted_creatures);
-		$boosted_cache->save();
-	} else {
-		$boosted_creatures = $boosted_cache->load();
-	}
+	$boosted_creatures = loadBoostedCreaturesWithCache(120);
 
 	$boosted_card_labels = array(
 		'creature' => 'Criatura',

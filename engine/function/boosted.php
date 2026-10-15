@@ -94,6 +94,41 @@ function describeBoostedCreatures() {
 	);
 }
 
+function prepareSiteCacheDirectory() {
+	$cacheDirectory = resolveSiteRootDirectory() . 'engine/cache';
+
+	if (!is_dir($cacheDirectory) && !@mkdir($cacheDirectory, 0755, true)) {
+		return null;
+	}
+
+	return is_writable($cacheDirectory) ? $cacheDirectory : null;
+}
+
+function loadBoostedCreaturesWithCache($cacheLifespanSeconds) {
+	$cacheDirectory = prepareSiteCacheDirectory();
+
+	if ($cacheDirectory === null) {
+		return describeBoostedCreatures();
+	}
+
+	$boostedCache = new Cache($cacheDirectory . '/boostedCreatures');
+	$boostedCache->setExpiration($cacheLifespanSeconds);
+
+	if (!$boostedCache->hasExpired()) {
+		$cachedBoostedCreatures = $boostedCache->load();
+
+		if (is_array($cachedBoostedCreatures)) {
+			return $cachedBoostedCreatures;
+		}
+	}
+
+	$boostedCreatures = describeBoostedCreatures();
+	$boostedCache->setContent($boostedCreatures);
+	$boostedCache->save();
+
+	return $boostedCreatures;
+}
+
 function calculateBoostedImageDisplaySize($localImagePath) {
 	if ($localImagePath === null) {
 		return null;
