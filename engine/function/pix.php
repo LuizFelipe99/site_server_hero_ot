@@ -21,6 +21,7 @@ const PIX_DEFAULT_SETTINGS = array(
 	'access_token' => '',
 	'api_url' => 'https://api.mercadopago.com',
 	'simulate_approval' => false,
+	'fallback_payer_email_domain' => 'heroot.com.br',
 	'webhook_secret' => '',
 	'expiration_minutes' => 30,
 	'timezone' => 'America/Sao_Paulo',
@@ -255,9 +256,41 @@ function close_pix_payment($payment_id, $closed_status) {
 	mysqli_stmt_execute($close_statement);
 }
 
+function ensure_znote_account_row($account_id) {
+	global $connect;
+
+	$created_at = time();
+	$insert_statement = mysqli_prepare($connect, "INSERT INTO `znote_accounts` (`account_id`, `ip`, `created`, `points`, `flag`) SELECT ?, 0, ?, 0, '' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `znote_accounts` WHERE `account_id` = ?)");
+	mysqli_stmt_bind_param($insert_statement, 'iii', $account_id, $created_at, $account_id);
+	mysqli_stmt_execute($insert_statement);
+}
+
+function read_account_points($account_id) {
+	global $connect;
+
+	ensure_znote_account_row($account_id);
+	$points_statement = mysqli_prepare($connect, 'SELECT `points` FROM `znote_accounts` WHERE `account_id` = ? LIMIT 1');
+	mysqli_stmt_bind_param($points_statement, 'i', $account_id);
+	mysqli_stmt_execute($points_statement);
+	$points_row = mysqli_fetch_assoc(mysqli_stmt_get_result($points_statement));
+
+	return $points_row ? (int) $points_row['points'] : 0;
+}
+
+function resolve_pix_payer_email($pix_settings, $account_id, $account_email) {
+	$trimmed_email = trim((string) $account_email);
+
+	if (filter_var($trimmed_email, FILTER_VALIDATE_EMAIL) !== false && preg_match('/@[^@.]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i', $trimmed_email) === 1) {
+		return strtolower($trimmed_email);
+	}
+
+	return 'conta' . (int) $account_id . '@' . $pix_settings['fallback_payer_email_domain'];
+}
+
 function credit_pix_payment($pix_payment) {
 	global $connect;
 
+	ensure_znote_account_row((int) $pix_payment['account_id']);
 	$credited_at = time();
 	$payment_id = (int) $pix_payment['id'];
 
@@ -272,7 +305,7 @@ function credit_pix_payment($pix_payment) {
 		return false;
 	}
 
-	$points_statement = mysqli_prepare($connect, 'UPDATE `znote_accounts` SET `points` = `points` + ? WHERE `account_id` = ?');
+	$points_statement = mysqli_prepare($connect, 'UPDATE `znote_accounts` SET `points` = COALESCE(`points`, 0) + ? WHERE `account_id` = ? LIMIT 1');
 	mysqli_stmt_bind_param($points_statement, 'ii', $pix_payment['points'], $pix_payment['account_id']);
 	mysqli_stmt_execute($points_statement);
 
@@ -346,7 +379,7 @@ function extract_pix_provider_order($provider_response) {
 function create_pix_provider_order($pix_settings, $pix_payment, $payer_email) {
 	$expiration_duration = 'PT' . (int) $pix_settings['expiration_minutes'] . 'M';
 	$formatted_amount = format_pix_amount($pix_payment['amount_cents']);
-	$order_payer = array('email' => $payer_email);
+	$order_payer = array('email' => resolve_pix_payer_email($pix_settings, $pix_payment['account_id'], $payer_email));
 
 	if ($pix_settings['simulate_approval'] === true) {
 		$order_payer['first_name'] = PIX_SIMULATED_APPROVAL_PAYER_NAME;

@@ -35,11 +35,6 @@ function find_buypoints_checkout_payment($pix_settings, $session_user_id) {
 	}
 }
 
-function read_buypoints_balance($session_user_id) {
-	$account_points = user_znote_account_data($session_user_id, 'points');
-	return (int) $account_points['points'];
-}
-
 if ($pix_is_available && isset($_POST['package_price'])) {
 	if (!Token::isValid($_POST['token'])) {
 		$buypoints_errors[] = 'Sua sessão expirou. Recarregue a página e tente novamente.';
@@ -58,7 +53,7 @@ if ($pix_is_available && isset($_POST['package_price'])) {
 }
 
 $checkout_payment = $pix_is_available ? find_buypoints_checkout_payment($pix_settings, $session_user_id) : null;
-$buypoints_balance = read_buypoints_balance($session_user_id);
+$buypoints_balance = read_account_points((int) $session_user_id);
 $buypoints_history = $pix_is_available ? fetch_account_pix_payments((int) $session_user_id, BUYPOINTS_HISTORY_SIZE) : array();
 $legacy_payment_methods_enabled = $config['paypal']['enabled'] || $config['pagseguro']['enabled'] || $config['paygol']['enabled'];
 
