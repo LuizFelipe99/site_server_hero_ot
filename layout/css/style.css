@@ -1677,3 +1677,10 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 @media (prefers-reduced-motion: reduce) {
 	.create-sprite, .create-vocation-detail, .create-vocation-bar span { animation: none; }
 }
+
+.password-page { max-width: 640px; }
+.password-form .register-input input { padding-right: 44px; }
+.password-form .register-field.is-valid .register-input::after { right: 40px; }
+.password-tips { margin: 18px 0 0; }
+.password-tips li { font-size: 0.85rem; }
+.password-redirect { font-size: 0.82rem; color: var(--color-text-faint) !important; }
