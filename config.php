@@ -304,6 +304,14 @@
 		8 => array(
 			'name' => 'Elite Knight',
 			'fromVoc' => 4
+		),
+		9 => array(
+			'name' => 'Monk',
+			'fromVoc' => false
+		),
+		10 => array(
+			'name' => 'Exalted Monk',
+			'fromVoc' => 9
 		)
 	);
 
@@ -354,6 +362,16 @@
 		8 => array(
 			'hp' => 15,
 			'mp' => 5,
+			'cap' => 25
+		),
+		9 => array(
+			'hp' => 10,
+			'mp' => 10,
+			'cap' => 25
+		),
+		10 => array(
+			'hp' => 10,
+			'mp' => 10,
 			'cap' => 25
 		),
 	);
@@ -438,7 +456,7 @@
 	$config['max_characters'] = 7;
 
 	// Available character vocation users can choose (specify vocation ID).
-	$config['available_vocations'] = array(1, 2, 3, 4);
+	$config['available_vocations'] = array(1, 2, 3, 4, 9);
 
 	// Available towns (specify town ids, etc: (1, 2, 3); to display 3 town options (town id 1, 2 and 3).
 	// Town IDs are the ones from $config['towns'] array
@@ -507,6 +525,17 @@
 				),
 				// Knight
 				4 => array(
+					'magic' => 0,
+					'fist' => 10,
+					'club' => 10,
+					'axe' => 10,
+					'sword' => 10,
+					'dist' => 10,
+					'shield' => 10,
+					'fishing' => 10,
+				),
+				// Monk
+				9 => array(
 					'magic' => 0,
 					'fist' => 10,
 					'club' => 10,
@@ -646,7 +675,7 @@
 	$config['port'] = 7171; // Port number to connect to your OT.
 
 	$config['status'] = array(
-		'status_check' => false, // Enable or disable status checker
+		'status_check' => true, // Enable or disable status checker
 		'status_ip' => '127.0.0.1',
 		'status_port' => "7171",
 	);
