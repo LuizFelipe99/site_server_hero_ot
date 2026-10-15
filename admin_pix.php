@@ -68,6 +68,8 @@ include 'layout/overall/header.php';
 						<th>Status</th>
 						<th>Criado</th>
 						<th>Pago</th>
+						<th>Status no Mercado Pago</th>
+						<th>Última consulta</th>
 						<th>Pedido Mercado Pago</th>
 					</tr>
 				</thead>
@@ -81,6 +83,8 @@ include 'layout/overall/header.php';
 							<td><span class="buypoints-status buypoints-status-<?php echo htmlspecialchars($admin_pix_payment['status']); ?>"><?php echo describe_pix_payment_status($admin_pix_payment['status']); ?></span></td>
 							<td><?php echo format_pix_datetime($pix_settings, $admin_pix_payment['created_at']); ?></td>
 							<td><?php echo $admin_pix_payment['credited_at'] !== null ? format_pix_datetime($pix_settings, $admin_pix_payment['credited_at']) : '—'; ?></td>
+							<td class="admin-pix-order"><?php echo $admin_pix_payment['provider_status'] !== null ? htmlspecialchars($admin_pix_payment['provider_status'] . ' / ' . $admin_pix_payment['provider_status_detail']) : '—'; ?></td>
+							<td><?php echo $admin_pix_payment['last_checked_at'] !== null ? format_pix_datetime($pix_settings, $admin_pix_payment['last_checked_at']) : '—'; ?></td>
 							<td class="admin-pix-order"><?php echo $admin_pix_payment['provider_order_id'] !== null ? htmlspecialchars($admin_pix_payment['provider_order_id']) : '<em>não enviado</em>'; ?></td>
 						</tr>
 					<?php endforeach; ?>

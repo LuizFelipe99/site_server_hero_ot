@@ -44,6 +44,7 @@ const PIX_DEFAULT_SETTINGS = array(
 const PIX_PRIVATE_SETTINGS_FILE = __DIR__ . '/../../pix.config.php';
 const PIX_EXTERNAL_REFERENCE_PREFIX = 'heroot-pix-';
 const PIX_SIMULATED_APPROVAL_PAYER_NAME = 'APRO';
+const PIX_SIMULATED_APPROVAL_PAYER_EMAIL = 'test@testuser.com';
 const PIX_HTTP_TIMEOUT_SECONDS = 15;
 const PIX_MINIMUM_EXPIRATION_MINUTES = 30;
 const PIX_EXPIRATION_GRACE_SECONDS = 600;
@@ -107,7 +108,7 @@ function ensure_pix_payments_table() {
 		`status` VARCHAR(20) NOT NULL DEFAULT 'pending',
 		`provider_order_id` VARCHAR(64) NULL DEFAULT NULL,
 		`provider_status` VARCHAR(40) NULL DEFAULT NULL,
-		`provider_status_detail` VARCHAR(40) NULL DEFAULT NULL,
+		`provider_status_detail` VARCHAR(120) NULL DEFAULT NULL,
 		`qr_code` TEXT NULL,
 		`qr_code_base64` MEDIUMTEXT NULL,
 		`ticket_url` VARCHAR(255) NULL DEFAULT NULL,
@@ -121,6 +122,12 @@ function ensure_pix_payments_table() {
 		KEY `account_created` (`account_id`, `created_at`),
 		KEY `status` (`status`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+	$detail_column = mysqli_fetch_assoc(mysqli_query($connect, "SELECT `CHARACTER_MAXIMUM_LENGTH` AS `maximum_length` FROM `information_schema`.`COLUMNS` WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'znote_pix_payments' AND `COLUMN_NAME` = 'provider_status_detail'"));
+
+	if ($detail_column && (int) $detail_column['maximum_length'] < 120) {
+		mysqli_query($connect, 'ALTER TABLE `znote_pix_payments` MODIFY `provider_status_detail` VARCHAR(120) NULL DEFAULT NULL');
+	}
 }
 
 function generate_pix_idempotency_key() {
@@ -370,6 +377,8 @@ function extract_pix_provider_order($provider_response) {
 		'status_detail' => isset($provider_response['status_detail']) ? (string) $provider_response['status_detail'] : '',
 		'external_reference' => isset($provider_response['external_reference']) ? (string) $provider_response['external_reference'] : '',
 		'total_amount' => isset($provider_response['total_amount']) ? (string) $provider_response['total_amount'] : '',
+		'payment_status' => isset($provider_payment['status']) ? (string) $provider_payment['status'] : '',
+		'payment_status_detail' => isset($provider_payment['status_detail']) ? (string) $provider_payment['status_detail'] : '',
 		'qr_code' => isset($payment_method['qr_code']) ? (string) $payment_method['qr_code'] : '',
 		'qr_code_base64' => isset($payment_method['qr_code_base64']) ? (string) $payment_method['qr_code_base64'] : '',
 		'ticket_url' => isset($payment_method['ticket_url']) ? (string) $payment_method['ticket_url'] : ''
@@ -382,7 +391,7 @@ function create_pix_provider_order($pix_settings, $pix_payment, $payer_email) {
 	$order_payer = array('email' => resolve_pix_payer_email($pix_settings, $pix_payment['account_id'], $payer_email));
 
 	if ($pix_settings['simulate_approval'] === true) {
-		$order_payer['first_name'] = PIX_SIMULATED_APPROVAL_PAYER_NAME;
+		$order_payer = array('email' => PIX_SIMULATED_APPROVAL_PAYER_EMAIL, 'first_name' => PIX_SIMULATED_APPROVAL_PAYER_NAME);
 	}
 
 	$provider_response = request_pix_provider($pix_settings, 'POST', '/v1/orders', array(
@@ -450,6 +459,14 @@ function is_pix_provider_order_matching($pix_payment, $provider_order) {
 	return (int) round((float) $provider_order['total_amount'] * 100) === (int) $pix_payment['amount_cents'];
 }
 
+function is_pix_provider_order_paid($provider_order) {
+	if ($provider_order['status'] === PIX_PROVIDER_PAID_STATUS && $provider_order['status_detail'] === PIX_PROVIDER_PAID_STATUS_DETAIL) {
+		return true;
+	}
+
+	return $provider_order['payment_status'] === PIX_PROVIDER_PAID_STATUS && $provider_order['payment_status_detail'] === PIX_PROVIDER_PAID_STATUS_DETAIL;
+}
+
 function synchronize_pix_payment($pix_settings, $pix_payment) {
 	if ($pix_payment['status'] !== PIX_PAYMENT_STATUS_PENDING || empty($pix_payment['provider_order_id'])) {
 		return $pix_payment;
@@ -461,9 +478,9 @@ function synchronize_pix_payment($pix_settings, $pix_payment) {
 		throw new PixGatewayException('O pedido do Mercado Pago não corresponde ao pagamento ' . (int) $pix_payment['id'] . '.');
 	}
 
-	store_pix_provider_status($pix_payment['id'], $provider_order['status'], $provider_order['status_detail']);
+	store_pix_provider_status($pix_payment['id'], $provider_order['status'], $provider_order['status_detail'] . ' | pagamento: ' . $provider_order['payment_status'] . '/' . $provider_order['payment_status_detail']);
 
-	if ($provider_order['status'] === PIX_PROVIDER_PAID_STATUS && $provider_order['status_detail'] === PIX_PROVIDER_PAID_STATUS_DETAIL) {
+	if (is_pix_provider_order_paid($provider_order)) {
 		credit_pix_payment($pix_payment);
 		return fetch_pix_payment($pix_payment['id']);
 	}
