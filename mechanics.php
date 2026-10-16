@@ -59,6 +59,27 @@ function format_mechanics_gold($gold_amount) {
 	return (string) $gold_amount;
 }
 
+function describe_mechanics_custom_item_icon($item_name) {
+	$lower_item_name = strtolower($item_name);
+	$icons_by_keyword = array(
+		'casket' => 'fa-archive',
+		'backpack' => 'fa-briefcase',
+		'bag' => 'fa-shopping-bag',
+		'coin' => 'fa-circle',
+		'token' => 'fa-circle',
+		'scroll' => 'fa-file-text',
+		'wheel' => 'fa-dot-circle-o'
+	);
+
+	foreach ($icons_by_keyword as $item_keyword => $item_icon) {
+		if (strpos($lower_item_name, $item_keyword) !== false) {
+			return $item_icon;
+		}
+	}
+
+	return 'fa-diamond';
+}
+
 function describe_mechanics_custom_item_tone($item_name) {
 	$lower_item_name = strtolower($item_name);
 
@@ -70,7 +91,7 @@ function describe_mechanics_custom_item_tone($item_name) {
 		return 'platinum';
 	}
 
-	foreach (array('health', 'mana', 'critical damage', 'critical chance', 'attack speed', 'primal', 'scroll') as $item_tone) {
+	foreach (array('health', 'mana', 'critical damage', 'critical chance', 'attack speed', 'primal', 'scroll', 'roulete', 'casket', 'backpack', 'bag', 'wheel') as $item_tone) {
 		if (strpos($lower_item_name, $item_tone) !== false) {
 			return str_replace(' ', '-', $item_tone);
 		}
@@ -84,13 +105,13 @@ function render_mechanics_item_icon($sprite_atlas, $client_id, $item_name) {
 	$atlas_position = isset($sprite_atlas['positions'][(string) $client_id]) ? $sprite_atlas['positions'][(string) $client_id] : null;
 
 	if ($atlas_position === null) {
-		return '<span class="mechanics-item mechanics-item-custom mechanics-tone-' . describe_mechanics_custom_item_tone($item_name) . '" title="' . $escaped_item_name . '"><i class="fa fa-diamond"></i></span>';
+		return '<span class="mechanics-item mechanics-item-custom mechanics-tone-' . describe_mechanics_custom_item_tone($item_name) . '" title="' . $escaped_item_name . '"><i class="fa ' . describe_mechanics_custom_item_icon($item_name) . '"></i></span>';
 	}
 
 	$background_x = $sprite_atlas['columns'] > 1 ? $atlas_position[0] / ($sprite_atlas['columns'] - 1) * 100 : 0;
 	$background_y = $sprite_atlas['rows'] > 1 ? $atlas_position[1] / ($sprite_atlas['rows'] - 1) * 100 : 0;
 
-	return '<span class="mechanics-item" title="' . $escaped_item_name . '" style="background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;"></span>';
+	return '<span class="mechanics-item" title="' . $escaped_item_name . '" style="background-size: ' . ($sprite_atlas['columns'] * 100) . '% ' . ($sprite_atlas['rows'] * 100) . '%; background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;"></span>';
 }
 
 function filter_mechanics_equipment_recipes($craft_recipes) {
@@ -370,29 +391,75 @@ $mechanics_data = load_mechanics_data();
 		</section>
 
 		<section class="mechanics-panel" id="battlepass" role="tabpanel" hidden>
+			<?php
+			$battle_pass = isset($mechanics_data['battlePass']) ? $mechanics_data['battlePass'] : null;
+			$battle_pass_days = $battle_pass !== null ? $battle_pass['days'] : array();
+			?>
 			<header class="mechanics-panel-header">
-				<h2>Battle Pass</h2>
-				<p>Todo dia uma nova missão: entregue os itens pedidos e receba a recompensa do dia. O dia seguinte libera à <strong>meia-noite</strong>. Cada temporada tem sua própria trilha, e o progresso recomeça quando uma nova temporada começa.</p>
+				<h2>Battle Pass<?php echo $battle_pass !== null ? ' · ' . htmlspecialchars($battle_pass['season']['name']) : ''; ?></h2>
+				<p>Todo dia uma nova missão: entregue os itens pedidos e receba a recompensa do dia. O dia seguinte libera à <strong>meia-noite</strong>.<?php if ($battle_pass !== null): ?> Esta temporada tem <strong><?php echo (int) $battle_pass['season']['totalDays']; ?> dias</strong> e, ao completar todos, você ganha a recompensa final.<?php endif; ?></p>
 			</header>
 
-			<div class="mechanics-pass" data-pass-demo>
-				<div class="mechanics-pass-header">
-					<h3>Como funciona <small>(exemplo ilustrativo)</small></h3>
-					<label class="mechanics-toggle"><input type="checkbox" data-pass-pro> <span class="mechanics-toggle-track"><span></span></span> Battle Pass PRO</label>
-				</div>
-				<div class="mechanics-pass-track">
-					<?php for ($pass_day = 1; $pass_day <= 7; $pass_day++): ?>
-						<?php $pass_day_state = $pass_day < 3 ? 'done' : ($pass_day === 3 ? 'current' : 'locked'); ?>
-						<div class="mechanics-pass-day is-<?php echo $pass_day_state; ?>">
-							<span class="mechanics-pass-day-label">Dia <?php echo $pass_day; ?></span>
-							<div class="mechanics-pass-reward mechanics-pass-free"><i class="fa fa-gift"></i><small>Grátis</small></div>
-							<div class="mechanics-pass-reward mechanics-pass-pro"><i class="fa fa-star"></i><small>PRO</small></div>
-							<span class="mechanics-pass-state"><?php echo $pass_day_state === 'done' ? 'Concluído' : ($pass_day_state === 'current' ? 'Hoje' : 'Bloqueado'); ?></span>
+			<?php if ($battle_pass !== null): ?>
+				<div class="mechanics-pass" data-pass-demo>
+					<div class="mechanics-pass-header">
+						<h3>Escolha um dia</h3>
+						<label class="mechanics-toggle"><input type="checkbox" data-pass-pro> <span class="mechanics-toggle-track"><span></span></span> Mostrar como PRO</label>
+					</div>
+
+					<div class="mechanics-pass-days" role="tablist" aria-label="Dias do Battle Pass">
+						<?php foreach ($battle_pass_days as $day_index => $battle_pass_day): ?>
+							<button type="button" class="mechanics-pass-day-button<?php echo $day_index === 0 ? ' is-active' : ''; ?>" data-pass-day="<?php echo $day_index; ?>">
+								<?php echo render_mechanics_item_icon($sprite_atlas, $battle_pass_day['itemId'], $battle_pass_day['description']); ?>
+								<span>Dia <?php echo $day_index + 1; ?></span>
+							</button>
+						<?php endforeach; ?>
+						<button type="button" class="mechanics-pass-day-button mechanics-pass-final-button" data-pass-day="final">
+							<?php echo render_mechanics_item_icon($sprite_atlas, $battle_pass['finalReward']['clientId'], $battle_pass['finalReward']['label']); ?>
+							<span>Final</span>
+						</button>
+					</div>
+
+					<?php foreach ($battle_pass_days as $day_index => $battle_pass_day): ?>
+						<div class="mechanics-pass-detail" data-pass-detail="<?php echo $day_index; ?>"<?php echo $day_index === 0 ? '' : ' hidden'; ?>>
+							<div class="mechanics-pass-mission">
+								<?php echo render_mechanics_item_icon($sprite_atlas, $battle_pass_day['itemId'], $battle_pass_day['description']); ?>
+								<div>
+									<span class="mechanics-pass-mission-label">Missão do dia <?php echo $day_index + 1; ?></span>
+									<strong><?php echo htmlspecialchars($battle_pass_day['description']); ?></strong>
+								</div>
+							</div>
+							<div class="mechanics-pass-rewards">
+								<div class="mechanics-pass-column mechanics-pass-column-free">
+									<h4><i class="fa fa-gift"></i> Grátis</h4>
+									<ul>
+										<?php foreach ($battle_pass_day['freeRewards'] as $free_reward): ?>
+											<li><?php echo render_mechanics_item_icon($sprite_atlas, $free_reward['clientId'], $free_reward['label']); ?><span><?php echo number_format($free_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $free_reward['label'])); ?></span></li>
+										<?php endforeach; ?>
+									</ul>
+								</div>
+								<div class="mechanics-pass-column mechanics-pass-column-pro">
+									<h4><i class="fa fa-star"></i> PRO <small data-pass-lock><i class="fa fa-lock"></i> precisa do pergaminho PRO</small></h4>
+									<ul>
+										<?php foreach ($battle_pass_day['proRewards'] as $pro_reward): ?>
+											<li><?php echo render_mechanics_item_icon($sprite_atlas, $pro_reward['clientId'], $pro_reward['label']); ?><span><?php echo number_format($pro_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $pro_reward['label'])); ?></span></li>
+										<?php endforeach; ?>
+									</ul>
+								</div>
+							</div>
 						</div>
-					<?php endfor; ?>
+					<?php endforeach; ?>
+
+					<div class="mechanics-pass-detail mechanics-pass-final" data-pass-detail="final" hidden>
+						<?php echo render_mechanics_item_icon($sprite_atlas, $battle_pass['finalReward']['clientId'], $battle_pass['finalReward']['label']); ?>
+						<div>
+							<span class="mechanics-pass-mission-label">Recompensa final</span>
+							<strong><?php echo htmlspecialchars($battle_pass['finalReward']['label']); ?></strong>
+							<p>Entregue a missão de todos os <?php echo count($battle_pass_days); ?> dias da temporada para receber.</p>
+						</div>
+					</div>
 				</div>
-				<p class="mechanics-pass-hint" data-pass-hint>Sem o PRO, você recebe só a recompensa grátis de cada dia. Ative o PRO acima para ver a diferença.</p>
-			</div>
+			<?php endif; ?>
 
 			<div class="mechanics-steps">
 				<div><span>1</span><h4>Missão do dia</h4><p>Abra o Battle Pass no jogo, veja o item pedido e junte a quantidade necessária.</p></div>

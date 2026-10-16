@@ -364,14 +364,25 @@
 			return;
 		}
 
+		var dayButtons = passDemo.querySelectorAll('[data-pass-day]');
 		var proToggle = passDemo.querySelector('[data-pass-pro]');
-		var passHint = passDemo.querySelector('[data-pass-hint]');
+
+		forEachElement(dayButtons, function (dayButton) {
+			dayButton.addEventListener('click', function () {
+				var selectedDay = dayButton.getAttribute('data-pass-day');
+
+				forEachElement(dayButtons, function (otherButton) {
+					otherButton.classList.toggle('is-active', otherButton === dayButton);
+				});
+
+				forEachElement(passDemo.querySelectorAll('[data-pass-detail]'), function (dayDetail) {
+					dayDetail.hidden = dayDetail.getAttribute('data-pass-detail') !== selectedDay;
+				});
+			});
+		});
 
 		proToggle.addEventListener('change', function () {
 			passDemo.classList.toggle('has-pro', proToggle.checked);
-			passHint.textContent = proToggle.checked
-				? 'Com o PRO ativo, cada dia entregue libera também a recompensa PRO. Basta usar o pergaminho PRO da temporada.'
-				: 'Sem o PRO, você recebe só a recompensa grátis de cada dia. Ative o PRO acima para ver a diferença.';
 		});
 	}
 

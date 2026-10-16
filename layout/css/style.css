@@ -1893,7 +1893,6 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	width: 32px;
 	height: 32px;
 	background-image: url('../../images/mechanics/items.png');
-	background-size: 1600% 1400%;
 	background-repeat: no-repeat;
 	image-rendering: pixelated;
 }
@@ -1907,6 +1906,11 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .mechanics-tone-attack-speed { --tone: #7be08a; }
 .mechanics-tone-primal { --tone: #b07aff; }
 .mechanics-tone-scroll, .mechanics-tone-material { --tone: #a08a6a; }
+.mechanics-tone-roulete { --tone: #e05aa0; }
+.mechanics-tone-casket { --tone: #9a7bd8; }
+.mechanics-tone-backpack { --tone: #c98a4a; }
+.mechanics-tone-bag { --tone: #6fb37a; }
+.mechanics-tone-wheel { --tone: #4fc3dc; }
 
 .mechanics-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .mechanics-search { position: relative; display: flex; align-items: center; margin: 0; }
@@ -2021,20 +2025,53 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .mechanics-toggle input:checked + .mechanics-toggle-track { background: var(--gradient-play); }
 .mechanics-toggle input:checked + .mechanics-toggle-track span { background: #fff4dc; transform: translateX(18px); }
 .mechanics-toggle input:focus-visible + .mechanics-toggle-track { box-shadow: 0 0 0 3px rgba(232, 184, 90, 0.25); }
-.mechanics-pass-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
-.mechanics-pass-day { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
-.mechanics-pass-day-label { font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); }
-.mechanics-pass-reward { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 1.1rem; border-radius: 6px; transition: all 0.25s ease; }
-.mechanics-pass-reward small { font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; }
-.mechanics-pass-free { color: var(--color-success); background: rgba(62, 168, 95, 0.1); border: 1px solid rgba(143, 224, 168, 0.25); }
-.mechanics-pass-pro { color: var(--color-text-faint); background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--color-border); filter: grayscale(1); }
-.mechanics-pass.has-pro .mechanics-pass-pro { color: #ffd36b; background: rgba(232, 184, 90, 0.12); border: 1px solid rgba(232, 184, 90, 0.45); filter: none; box-shadow: 0 0 12px -4px rgba(255, 190, 90, 0.6); }
-.mechanics-pass-day.is-locked .mechanics-pass-reward { opacity: 0.35; }
-.mechanics-pass-day.is-current { border-color: var(--color-gold); box-shadow: 0 0 0 1px var(--color-gold), 0 10px 24px -14px rgba(255, 122, 26, 0.7); }
-.mechanics-pass-state { font-size: 0.7rem; color: var(--color-text-faint); }
-.mechanics-pass-day.is-current .mechanics-pass-state { font-weight: 700; color: var(--color-gold); }
-.mechanics-pass-day.is-done .mechanics-pass-state { color: var(--color-success); }
-.mechanics-pass-hint { margin: 14px 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+.mechanics-pass-days { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+.mechanics-pass-days .mechanics-pass-day-button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	height: auto;
+	padding: 8px 4px 6px;
+	font-family: var(--font-body);
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0;
+	text-transform: none;
+	text-shadow: none;
+	color: var(--color-text-muted);
+	background: rgba(255, 255, 255, 0.02);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-control);
+	box-shadow: none;
+}
+.mechanics-pass-days .mechanics-pass-day-button:hover { color: var(--color-text); background: rgba(232, 184, 90, 0.06); border-color: var(--color-border-strong); box-shadow: none; }
+.mechanics-pass-days .mechanics-pass-day-button.is-active { color: var(--color-gold-light); background: rgba(232, 184, 90, 0.1); border-color: var(--color-gold); box-shadow: 0 0 0 1px var(--color-gold), 0 10px 22px -14px rgba(255, 122, 26, 0.7); }
+.mechanics-pass-days .mechanics-pass-final-button { color: #ffd36b; border-color: rgba(232, 184, 90, 0.45); background: linear-gradient(180deg, rgba(232, 184, 90, 0.12), rgba(15, 10, 11, 0.6)); }
+.mechanics-pass-days .mechanics-item-custom { width: 28px; height: 28px; margin: 2px; font-size: 0.75rem; }
+.mechanics-pass-detail { animation: register-rise 0.25s ease-out both; }
+.mechanics-pass-detail[hidden] { display: none; }
+.mechanics-pass-mission { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 12px 14px; background: rgba(232, 184, 90, 0.06); border: 1px solid var(--color-border); border-left: 3px solid var(--color-gold); border-radius: var(--radius-control); }
+.mechanics-pass-mission .mechanics-item, .mechanics-pass-final > .mechanics-item { transform: scale(1.5); margin: 8px; }
+.mechanics-pass-mission-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-faint); }
+.mechanics-pass-mission strong, .mechanics-pass-final strong { font-size: 1rem; color: var(--color-gold-light); }
+.mechanics-pass-rewards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.mechanics-pass-column { padding: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); transition: all 0.25s ease; }
+.mechanics-pass-column h4 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 10px; font-size: 0.9rem; }
+.mechanics-pass-column h4 small { font-family: var(--font-body); font-size: 0.7rem; font-weight: 400; color: var(--color-text-faint); }
+.mechanics-pass-column ul { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.mechanics-pass-column li { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--color-text-muted); }
+.mechanics-pass-column .mechanics-item-custom { width: 24px; height: 24px; margin: 4px; font-size: 0.7rem; }
+.mechanics-pass-column-free { border-color: rgba(143, 224, 168, 0.3); }
+.mechanics-pass-column-free h4 { color: var(--color-success); }
+.mechanics-pass-column-pro h4 { color: #ffd36b; }
+.mechanics-pass-column-pro ul { opacity: 0.4; filter: grayscale(0.8); transition: all 0.25s ease; }
+.mechanics-pass.has-pro .mechanics-pass-column-pro { border-color: rgba(232, 184, 90, 0.5); background: rgba(232, 184, 90, 0.07); box-shadow: 0 0 18px -10px rgba(255, 190, 90, 0.7); }
+.mechanics-pass.has-pro .mechanics-pass-column-pro ul { opacity: 1; filter: none; }
+.mechanics-pass.has-pro [data-pass-lock] { display: none; }
+.mechanics-pass-final { display: flex; align-items: center; gap: 18px; padding: 18px; background: linear-gradient(120deg, rgba(232, 184, 90, 0.12), rgba(15, 10, 11, 0.4)); border: 1px solid rgba(232, 184, 90, 0.45); border-radius: var(--radius-panel); }
+.mechanics-pass-final > .mechanics-item, .mechanics-pass-final > .mechanics-item-custom { transform: scale(2); margin: 18px; }
+.mechanics-pass-final p { margin: 4px 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
 .mechanics-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .mechanics-steps div { padding: 16px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
 .mechanics-steps span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; font-weight: 700; color: #1a0d06; background: linear-gradient(180deg, var(--color-gold-light), var(--color-gold)); border-radius: 50%; }
@@ -2047,7 +2084,8 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	.mechanics-tabs { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.mechanics-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.mechanics-gem-builder, .mechanics-elements, .mechanics-steps { grid-template-columns: minmax(0, 1fr); }
-	.mechanics-pass-track { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	.mechanics-pass-days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	.mechanics-pass-rewards { grid-template-columns: minmax(0, 1fr); }
 	.mechanics-search, .mechanics-search input { width: 100%; }
 	.mechanics-fusion-stage { grid-template-columns: auto auto; }
 	.mechanics-fusion-output { grid-column: 1 / -1; }
