@@ -1831,3 +1831,228 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .account-badge a { display: inline-flex; align-items: center; gap: 6px; color: inherit; }
 .account-badge a:hover { color: var(--color-gold-light); }
 .account-badge .buypoints-coin { width: 18px; height: 18px; vertical-align: 0; }
+
+.mechanics-page { animation: register-rise 0.45s ease-out both; }
+.mechanics-tabs { position: sticky; top: 72px; z-index: 5; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 22px; padding: 6px; background: rgba(15, 10, 11, 0.85); border: 1px solid var(--color-border); border-radius: var(--radius-panel); backdrop-filter: blur(6px); }
+.mechanics-tabs .mechanics-tab {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 44px;
+	padding: 0 10px;
+	font-family: var(--font-body);
+	font-size: 0.9rem;
+	font-weight: 600;
+	letter-spacing: 0;
+	text-transform: none;
+	text-shadow: none;
+	color: var(--color-text-muted);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: var(--radius-control);
+	box-shadow: none;
+}
+.mechanics-tabs .mechanics-tab:hover { color: var(--color-text); background: rgba(232, 184, 90, 0.06); box-shadow: none; }
+.mechanics-tabs .mechanics-tab.is-active { color: #fff4dc; background: var(--gradient-play); border-color: rgba(255, 210, 122, 0.5); box-shadow: var(--shadow-ember); }
+.mechanics-panel { animation: register-rise 0.35s ease-out both; }
+.mechanics-panel[hidden], .mechanics-subpanel[hidden], .mechanics-fusion-stage[hidden], .mechanics-recipe[hidden] { display: none; }
+.mechanics-panel-header h2 { margin: 0 0 8px; font-size: 1.7rem; }
+.mechanics-panel-header p, .mechanics-lead { margin: 0 0 18px; line-height: 1.65; color: var(--color-text-muted); }
+.mechanics-subheading { margin: 30px 0 8px; font-size: 1.15rem; color: var(--color-gold); }
+
+.mechanics-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+.mechanics-stats div { padding: 14px 10px; text-align: center; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
+.mechanics-stats strong { display: block; font-family: var(--font-display); font-size: 1.6rem; color: var(--color-gold-light); }
+.mechanics-stats span { font-size: 0.75rem; color: var(--color-text-faint); }
+
+.mechanics-subtabs { display: inline-flex; gap: 4px; margin-bottom: 16px; padding: 4px; background: var(--color-surface-sunken); border: 1px solid var(--color-border); border-radius: 999px; }
+.mechanics-subtabs .mechanics-subtab, .mechanics-chips .mechanics-chip {
+	height: 34px;
+	padding: 0 16px;
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	font-weight: 600;
+	letter-spacing: 0;
+	text-transform: none;
+	text-shadow: none;
+	color: var(--color-text-muted);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	box-shadow: none;
+}
+.mechanics-subtabs .mechanics-subtab:hover, .mechanics-chips .mechanics-chip:hover { color: var(--color-text); background: rgba(232, 184, 90, 0.08); box-shadow: none; }
+.mechanics-subtabs .mechanics-subtab.is-active, .mechanics-chips .mechanics-chip.is-active { color: #1a0d06; background: linear-gradient(180deg, var(--color-gold-light), var(--color-gold)); border-color: transparent; }
+.mechanics-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mechanics-chips .mechanics-chip { border-color: var(--color-border); }
+
+.mechanics-item {
+	display: inline-block;
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	background-image: url('../../images/mechanics/items.png');
+	background-size: 1600% 1400%;
+	background-repeat: no-repeat;
+	image-rendering: pixelated;
+}
+.mechanics-item-custom { display: inline-flex; align-items: center; justify-content: center; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tone) 70%, white), var(--tone) 55%, color-mix(in srgb, var(--tone) 50%, black)); border-radius: 8px; box-shadow: 0 0 10px -2px var(--tone); color: rgba(255, 255, 255, 0.85); font-size: 0.85rem; }
+.mechanics-tone-golden { --tone: #e8b85a; }
+.mechanics-tone-platinum { --tone: #b9c6d6; }
+.mechanics-tone-health { --tone: #ff5a4d; }
+.mechanics-tone-mana { --tone: #4d9bff; }
+.mechanics-tone-critical-chance { --tone: #ffd24d; }
+.mechanics-tone-critical-damage { --tone: #ff8a3d; }
+.mechanics-tone-attack-speed { --tone: #7be08a; }
+.mechanics-tone-primal { --tone: #b07aff; }
+.mechanics-tone-scroll, .mechanics-tone-material { --tone: #a08a6a; }
+
+.mechanics-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.mechanics-search { position: relative; display: flex; align-items: center; margin: 0; }
+.mechanics-search .fa { position: absolute; left: 12px; color: var(--color-text-faint); pointer-events: none; }
+.mechanics-search input { width: 220px; height: 38px; padding-left: 34px; }
+.mechanics-recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.mechanics-recipe { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: linear-gradient(180deg, rgba(28, 19, 20, 0.9), rgba(15, 10, 11, 0.95)); border: 1px solid var(--color-border); border-radius: var(--radius-panel); transition: border-color 0.2s ease, transform 0.2s ease; }
+.mechanics-recipe:hover { transform: translateY(-2px); border-color: var(--color-border-strong); }
+.mechanics-recipe-result { display: flex; align-items: center; gap: 10px; }
+.mechanics-recipe-result .mechanics-item { width: 48px; height: 48px; padding: 4px; background-color: rgba(255, 255, 255, 0.03); background-origin: content-box; background-clip: content-box; border: 1px solid var(--color-border); border-radius: 8px; box-sizing: border-box; }
+.mechanics-recipe h3 { margin: 0; font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; color: var(--color-gold-light); }
+.mechanics-recipe-vocation { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-faint); }
+.mechanics-ingredients, .mechanics-mission-items { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.mechanics-ingredients li, .mechanics-mission-items li { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--color-text-muted); }
+.mechanics-ingredients .mechanics-item-custom, .mechanics-mission-items .mechanics-item-custom { width: 24px; height: 24px; margin: 4px; font-size: 0.7rem; }
+.mechanics-recipe-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 8px; font-size: 0.8rem; color: var(--color-text-muted); border-top: 1px solid var(--color-border); }
+.mechanics-recipe-footer .fa { color: var(--color-gold); }
+.mechanics-chance { position: relative; display: inline-block; padding: 2px 9px; overflow: hidden; font-size: 0.75rem; font-weight: 700; color: var(--color-text); background: rgba(255, 255, 255, 0.05); border-radius: 999px; isolation: isolate; }
+.mechanics-chance::before { content: ''; position: absolute; inset: 0 auto 0 0; z-index: -1; width: var(--chance); background: linear-gradient(90deg, rgba(62, 168, 95, 0.35), rgba(91, 209, 122, 0.55)); }
+.mechanics-empty { color: var(--color-text-muted); }
+
+.mechanics-dismantle { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+.mechanics-dismantle-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.8rem; color: var(--color-text-muted); background: rgba(255, 255, 255, 0.015); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.mechanics-dismantle-item span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+.mechanics-fusion { padding: 18px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border-strong); border-radius: var(--radius-panel); }
+.mechanics-fusion-stage { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 18px; margin: 18px 0; padding: 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
+.mechanics-fusion-inputs { display: grid; grid-template-columns: repeat(2, 40px); gap: 6px; }
+.mechanics-fusion-inputs .mechanics-item-custom { width: 40px; height: 40px; font-size: 1rem; }
+.mechanics-fusion-arrow { font-size: 1.6rem; color: var(--color-gold); }
+.mechanics-fusion-output { display: flex; align-items: center; gap: 12px; }
+.mechanics-fusion-output .mechanics-item-custom { width: 56px; height: 56px; font-size: 1.4rem; }
+.mechanics-fusion-output strong { font-size: 1rem; color: var(--color-gold-light); }
+.mechanics-fusion-info { display: flex; gap: 14px; grid-column: 1 / -1; font-size: 0.85rem; color: var(--color-text-muted); }
+.mechanics-fusion-stage.is-success { animation: mechanics-glow-success 0.9s ease-out; }
+.mechanics-fusion-stage.is-failure { animation: register-shake 0.4s ease-out; }
+.mechanics-fusion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.mechanics-fusion .mechanics-try { height: 42px; }
+.mechanics-fusion-result { font-weight: 600; }
+.mechanics-fusion-result.is-success { color: var(--color-success); }
+.mechanics-fusion-result.is-failure { color: var(--color-danger); }
+
+.mechanics-gem-builder { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.mechanics-gem-builder h3 { margin: 0 0 12px; font-size: 1rem; color: var(--color-gold); }
+.mechanics-gem-palette, .mechanics-gem-bag { padding: 16px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
+.mechanics-gem-option { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; grid-template-areas: "icon text add" "level level level"; align-items: center; gap: 4px 10px; margin-bottom: 8px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.mechanics-gem-icon { grid-area: icon; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem-color) 60%, white), var(--gem-color) 60%, color-mix(in srgb, var(--gem-color) 50%, black)); border-radius: 50%; box-shadow: 0 0 12px -2px var(--gem-color); }
+.mechanics-gem-option-text { grid-area: text; display: flex; flex-direction: column; }
+.mechanics-gem-option-text strong { font-size: 0.9rem; }
+.mechanics-gem-option-text small { font-size: 0.78rem; color: var(--color-text-muted); }
+.mechanics-gem-option input[type="range"] { grid-area: level; width: 100%; height: auto; padding: 0; accent-color: var(--gem-color); background: transparent; border: 0; box-shadow: none; }
+.mechanics-gem-option .mechanics-gem-add { grid-area: add; width: 36px; height: 36px; padding: 0; }
+.mechanics-gem-rows { display: flex; flex-direction: column; gap: 8px; }
+.mechanics-gem-row { display: grid; grid-template-columns: 96px repeat(3, 56px); align-items: center; gap: 8px; }
+.mechanics-gem-row-label { font-size: 0.78rem; font-weight: 600; color: var(--color-text-faint); }
+.mechanics-gem-bag .mechanics-gem-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 56px; height: 56px; padding: 0; color: transparent; background: var(--color-surface-sunken); border: 1px dashed var(--color-border-strong); border-radius: 10px; box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6); text-shadow: none; }
+.mechanics-gem-bag .mechanics-gem-slot.is-filled { color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem-color) 55%, white), var(--gem-color) 60%, color-mix(in srgb, var(--gem-color) 45%, black)); border: 1px solid color-mix(in srgb, var(--gem-color) 70%, white); box-shadow: 0 0 16px -3px var(--gem-color); animation: register-pop 0.3s ease-out both; }
+.mechanics-gem-slot .fa { font-size: 1.2rem; }
+.mechanics-gem-slot small { font-size: 0.65rem; font-weight: 700; }
+.mechanics-gem-message { margin: 14px 0 10px; font-size: 0.82rem; color: var(--color-text-muted); }
+.mechanics-gem-message.is-warning { color: #ffcf7a; }
+.mechanics-gem-summary { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.mechanics-gem-summary div { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 0.85rem; background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--gem-color, var(--color-border)); border-radius: 4px; }
+.mechanics-gem-summary dt { color: var(--color-text-muted); }
+.mechanics-gem-summary dd { margin: 0; font-weight: 700; color: var(--gem-color, var(--color-text-faint)); }
+
+.mechanics-table-wrapper { overflow-x: auto; }
+.mechanics-table { width: 100%; font-size: 0.82rem; border-collapse: collapse; }
+.mechanics-table th, .mechanics-table td { padding: 8px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--color-border); }
+.mechanics-table th { font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.mechanics-table tbody tr:hover { background: rgba(232, 184, 90, 0.04); }
+
+.mechanics-elemental { padding: 18px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border-strong); border-radius: var(--radius-panel); }
+.mechanics-elemental-header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+.mechanics-elemental-header h3 { margin: 0; font-size: 1rem; color: var(--color-gold); }
+.mechanics-elemental-points { margin-left: auto; font-size: 0.85rem; color: var(--color-text-muted); }
+.mechanics-elemental-points strong { color: var(--color-gold-light); }
+.mechanics-elemental .mechanics-link-button { height: 32px; padding: 0 12px; font-size: 0.8rem; }
+.mechanics-elements { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mechanics-element { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); transition: border-color 0.2s ease, background 0.2s ease; }
+.mechanics-element.is-active { border-color: color-mix(in srgb, var(--element-color) 55%, transparent); background: color-mix(in srgb, var(--element-color) 8%, transparent); }
+.mechanics-element-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; font-size: 1.1rem; color: var(--element-color); background: color-mix(in srgb, var(--element-color) 14%, transparent); border: 1px solid color-mix(in srgb, var(--element-color) 40%, transparent); border-radius: 50%; }
+.mechanics-element.is-active .mechanics-element-icon { box-shadow: 0 0 14px -2px var(--element-color); }
+.mechanics-element-text strong { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+.mechanics-element-bar { display: block; height: 5px; overflow: hidden; background: rgba(255, 255, 255, 0.06); border-radius: 3px; }
+.mechanics-element-bar span { display: block; width: 0; height: 100%; background: var(--element-color); border-radius: inherit; transition: width 0.25s ease; }
+.mechanics-element-controls { display: flex; align-items: center; gap: 6px; }
+.mechanics-element-controls button { width: 30px; height: 30px; padding: 0; font-size: 0.75rem; }
+.mechanics-element-controls button:disabled { opacity: 0.35; cursor: default; }
+.mechanics-element-controls output { min-width: 42px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--element-color); }
+.mechanics-elemental-example { margin: 14px 0 0; padding: 10px 12px; font-size: 0.85rem; color: var(--color-text-muted); background: rgba(232, 184, 90, 0.05); border-radius: var(--radius-control); }
+
+.mechanics-missions { display: flex; flex-direction: column; gap: 6px; }
+.mechanics-mission { background: rgba(255, 255, 255, 0.015); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.mechanics-mission[open] { border-color: var(--color-border-strong); }
+.mechanics-mission summary { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; list-style: none; }
+.mechanics-mission summary::-webkit-details-marker { display: none; }
+.mechanics-mission-number { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; font-size: 0.8rem; font-weight: 700; color: #1a0d06; background: linear-gradient(180deg, var(--color-gold-light), var(--color-gold)); border-radius: 50%; }
+.mechanics-mission summary strong { flex: 1 1 auto; }
+.mechanics-mission-reward { font-size: 0.78rem; color: var(--color-success); }
+.mechanics-mission p { margin: 0 14px 10px; font-size: 0.85rem; font-style: italic; color: var(--color-text-faint); }
+.mechanics-mission-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin: 0 14px 14px; }
+
+.mechanics-pass { padding: 18px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border-strong); border-radius: var(--radius-panel); }
+.mechanics-pass-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.mechanics-pass-header h3 { margin: 0; font-size: 1rem; color: var(--color-gold); }
+.mechanics-pass-header small { font-family: var(--font-body); font-size: 0.75rem; font-weight: 400; color: var(--color-text-faint); }
+.mechanics-toggle { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.mechanics-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.mechanics-toggle-track { position: relative; width: 42px; height: 24px; background: var(--color-surface-sunken); border: 1px solid var(--color-border-strong); border-radius: 999px; transition: background 0.2s ease; }
+.mechanics-toggle-track span { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: var(--color-text-faint); border-radius: 50%; transition: transform 0.2s ease, background 0.2s ease; }
+.mechanics-toggle input:checked + .mechanics-toggle-track { background: var(--gradient-play); }
+.mechanics-toggle input:checked + .mechanics-toggle-track span { background: #fff4dc; transform: translateX(18px); }
+.mechanics-toggle input:focus-visible + .mechanics-toggle-track { box-shadow: 0 0 0 3px rgba(232, 184, 90, 0.25); }
+.mechanics-pass-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.mechanics-pass-day { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.mechanics-pass-day-label { font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); }
+.mechanics-pass-reward { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 1.1rem; border-radius: 6px; transition: all 0.25s ease; }
+.mechanics-pass-reward small { font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.mechanics-pass-free { color: var(--color-success); background: rgba(62, 168, 95, 0.1); border: 1px solid rgba(143, 224, 168, 0.25); }
+.mechanics-pass-pro { color: var(--color-text-faint); background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--color-border); filter: grayscale(1); }
+.mechanics-pass.has-pro .mechanics-pass-pro { color: #ffd36b; background: rgba(232, 184, 90, 0.12); border: 1px solid rgba(232, 184, 90, 0.45); filter: none; box-shadow: 0 0 12px -4px rgba(255, 190, 90, 0.6); }
+.mechanics-pass-day.is-locked .mechanics-pass-reward { opacity: 0.35; }
+.mechanics-pass-day.is-current { border-color: var(--color-gold); box-shadow: 0 0 0 1px var(--color-gold), 0 10px 24px -14px rgba(255, 122, 26, 0.7); }
+.mechanics-pass-state { font-size: 0.7rem; color: var(--color-text-faint); }
+.mechanics-pass-day.is-current .mechanics-pass-state { font-weight: 700; color: var(--color-gold); }
+.mechanics-pass-day.is-done .mechanics-pass-state { color: var(--color-success); }
+.mechanics-pass-hint { margin: 14px 0 0; font-size: 0.85rem; color: var(--color-text-muted); }
+.mechanics-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.mechanics-steps div { padding: 16px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
+.mechanics-steps span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; font-weight: 700; color: #1a0d06; background: linear-gradient(180deg, var(--color-gold-light), var(--color-gold)); border-radius: 50%; }
+.mechanics-steps h4 { margin: 10px 0 6px; font-size: 0.95rem; color: var(--color-gold-light); }
+.mechanics-steps p { margin: 0; font-size: 0.85rem; line-height: 1.55; color: var(--color-text-muted); }
+
+@keyframes mechanics-glow-success { 0% { box-shadow: 0 0 0 0 rgba(91, 209, 122, 0.6); } 100% { box-shadow: 0 0 0 18px rgba(91, 209, 122, 0); } }
+
+@media (max-width: 760px) {
+	.mechanics-tabs { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.mechanics-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.mechanics-gem-builder, .mechanics-elements, .mechanics-steps { grid-template-columns: minmax(0, 1fr); }
+	.mechanics-pass-track { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	.mechanics-search, .mechanics-search input { width: 100%; }
+	.mechanics-fusion-stage { grid-template-columns: auto auto; }
+	.mechanics-fusion-output { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mechanics-page, .mechanics-panel, .mechanics-gem-slot.is-filled, .mechanics-fusion-stage { animation: none; }
+}

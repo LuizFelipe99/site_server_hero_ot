@@ -41,6 +41,7 @@
 							<?php endif; ?>
 							<li><a href="serverinfo.php">Informações do servidor</a> </li>
 							<li><a href="spells.php">Magias</a> </li>
+							<li><a href="mechanics.php">Mecânicas</a> </li>
 						</ul>
 					</li>
 					<li><a href="support.php"><i class="fa fa-info-circle"></i> Suporte</a>
