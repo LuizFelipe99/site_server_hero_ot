@@ -122,6 +122,18 @@ function build_mechanics_sprite_style($sprite_atlas, $client_id) {
 	return 'background-size: ' . ($sprite_atlas['columns'] * 100) . '% ' . ($sprite_atlas['rows'] * 100) . '%; background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;';
 }
 
+function build_mechanics_outfit_sprite_style($outfit_atlas, $look_type) {
+	if (!isset($outfit_atlas['positions'][(string) $look_type])) {
+		return '';
+	}
+
+	$atlas_position = $outfit_atlas['positions'][(string) $look_type];
+	$background_x = $outfit_atlas['columns'] > 1 ? $atlas_position[0] / ($outfit_atlas['columns'] - 1) * 100 : 0;
+	$background_y = $outfit_atlas['rows'] > 1 ? $atlas_position[1] / ($outfit_atlas['rows'] - 1) * 100 : 0;
+
+	return 'background-size: ' . ($outfit_atlas['columns'] * 100) . '% ' . ($outfit_atlas['rows'] * 100) . '%; background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;';
+}
+
 function build_mechanics_gem_sprite_styles($sprite_atlas, $gems) {
 	$gem_sprite_styles = array();
 
@@ -182,6 +194,7 @@ $mechanics_data = load_mechanics_data();
 			<button type="button" role="tab" class="mechanics-tab" data-mechanics-tab="gemas"><i class="fa fa-diamond"></i> Bag Gem</button>
 			<button type="button" role="tab" class="mechanics-tab" data-mechanics-tab="elemental"><i class="fa fa-fire"></i> Build Elemental</button>
 			<button type="button" role="tab" class="mechanics-tab" data-mechanics-tab="battlepass"><i class="fa fa-trophy"></i> Battle Pass</button>
+			<button type="button" role="tab" class="mechanics-tab" data-mechanics-tab="caixas"><i class="fa fa-archive"></i> Caixas</button>
 		</nav>
 
 		<section class="mechanics-panel" id="forja" role="tabpanel">
@@ -453,7 +466,7 @@ $mechanics_data = load_mechanics_data();
 									<h4><i class="fa fa-gift"></i> Grátis</h4>
 									<ul>
 										<?php foreach ($battle_pass_day['freeRewards'] as $free_reward): ?>
-											<li><?php echo render_mechanics_item_icon($sprite_atlas, $free_reward['clientId'], $free_reward['label']); ?><span><?php echo number_format($free_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $free_reward['label'])); ?></span></li>
+											<li><?php echo render_mechanics_item_icon($sprite_atlas, isset($free_reward['displayId']) ? $free_reward['displayId'] : $free_reward['clientId'], $free_reward['label']); ?><span><?php echo number_format($free_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $free_reward['label'])); ?></span></li>
 										<?php endforeach; ?>
 									</ul>
 								</div>
@@ -461,7 +474,7 @@ $mechanics_data = load_mechanics_data();
 									<h4><i class="fa fa-star"></i> PRO <small data-pass-lock><i class="fa fa-lock"></i> precisa do pergaminho PRO</small></h4>
 									<ul>
 										<?php foreach ($battle_pass_day['proRewards'] as $pro_reward): ?>
-											<li><?php echo render_mechanics_item_icon($sprite_atlas, $pro_reward['clientId'], $pro_reward['label']); ?><span><?php echo number_format($pro_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $pro_reward['label'])); ?></span></li>
+											<li><?php echo render_mechanics_item_icon($sprite_atlas, isset($pro_reward['displayId']) ? $pro_reward['displayId'] : $pro_reward['clientId'], $pro_reward['label']); ?><span><?php echo number_format($pro_reward['amount'], 0, ',', '.'); ?>x <?php echo htmlspecialchars(preg_replace('/^\d+x\s*/', '', $pro_reward['label'])); ?></span></li>
 										<?php endforeach; ?>
 									</ul>
 								</div>
@@ -485,6 +498,60 @@ $mechanics_data = load_mechanics_data();
 				<div><span>2</span><h4>Entregue e receba</h4><p>Entregue os itens para ganhar a recompensa grátis. O próximo dia libera à meia-noite.</p></div>
 				<div><span>3</span><h4>PRO em dobro</h4><p>Com o pergaminho PRO da temporada ativado, cada dia entregue libera também a recompensa PRO.</p></div>
 			</div>
+		</section>
+
+		<?php
+		$outfit_atlas = isset($mechanics_data['outfitAtlas']) ? $mechanics_data['outfitAtlas'] : null;
+		$addon_casket_outfits = isset($mechanics_data['caskets']['addon']) ? $mechanics_data['caskets']['addon'] : array();
+		?>
+		<section class="mechanics-panel" id="caixas" role="tabpanel" hidden>
+			<header class="mechanics-panel-header">
+				<h2>Caixas</h2>
+				<p>Caixas especiais que você ganha no Battle Pass e na Roleta. Basta usar a caixa para receber o prêmio na hora.</p>
+			</header>
+
+			<div class="mechanics-caskets">
+				<article class="mechanics-casket">
+					<?php echo render_mechanics_item_icon($sprite_atlas, 64484, 'Addon Casket'); ?>
+					<div>
+						<h3>Addon Casket</h3>
+						<p>Sorteia uma outfit <strong>completa, com os 2 addons</strong>, entre as <?php echo count($addon_casket_outfits); ?> abaixo. Só sai outfit que você ainda não tem completa, então nunca vem repetida. Se você já tiver todas, a caixa não é gasta.</p>
+					</div>
+				</article>
+				<article class="mechanics-casket">
+					<?php echo render_mechanics_item_icon($sprite_atlas, 64485, 'Mount Casket'); ?>
+					<div>
+						<h3>Mount Casket</h3>
+						<p>Sorteia uma <strong>montaria</strong> aleatória para a sua conta.</p>
+					</div>
+				</article>
+			</div>
+
+			<?php if ($outfit_atlas !== null && !empty($addon_casket_outfits)): ?>
+				<div class="mechanics-outfits" data-outfit-gallery>
+					<div class="mechanics-outfits-header">
+						<h3>Outfits da Addon Casket</h3>
+						<div class="mechanics-chips" role="group" aria-label="Sexo das outfits">
+							<button type="button" class="mechanics-chip is-active" data-outfit-sex="male"><i class="fa fa-mars"></i> Masculino</button>
+							<button type="button" class="mechanics-chip" data-outfit-sex="female"><i class="fa fa-venus"></i> Feminino</button>
+						</div>
+						<label class="mechanics-search"><i class="fa fa-search"></i><input type="search" placeholder="Buscar outfit..." data-outfit-search></label>
+					</div>
+					<div class="mechanics-casket-roll">
+						<button type="button" class="mechanics-try" data-outfit-roll><i class="fa fa-gift"></i>&nbsp; Abrir uma caixa</button>
+						<span class="mechanics-casket-result" data-outfit-result aria-live="polite">Clique para simular a abertura de uma Addon Casket.</span>
+					</div>
+					<div class="mechanics-outfit-grid">
+						<?php foreach ($addon_casket_outfits as $casket_outfit): ?>
+							<div class="mechanics-outfit" data-outfit-name="<?php echo htmlspecialchars(strtolower($casket_outfit['name'])); ?>">
+								<span class="mechanics-outfit-sprite" data-male-style="<?php echo build_mechanics_outfit_sprite_style($outfit_atlas, $casket_outfit['male']); ?>" data-female-style="<?php echo build_mechanics_outfit_sprite_style($outfit_atlas, $casket_outfit['female']); ?>" style="<?php echo build_mechanics_outfit_sprite_style($outfit_atlas, $casket_outfit['male']); ?>"></span>
+								<span class="mechanics-outfit-name"><?php echo htmlspecialchars($casket_outfit['name']); ?></span>
+							</div>
+						<?php endforeach; ?>
+					</div>
+					<p class="mechanics-empty" data-outfit-empty hidden>Nenhuma outfit encontrada.</p>
+				</div>
+			<?php endif; ?>
 		</section>
 
 		<script>

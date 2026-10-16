@@ -388,6 +388,63 @@
 		});
 	}
 
+	function setupOutfitGallery() {
+		var outfitGallery = document.querySelector('[data-outfit-gallery]');
+
+		if (!outfitGallery) {
+			return;
+		}
+
+		var outfitCards = outfitGallery.querySelectorAll('.mechanics-outfit');
+		var sexButtons = outfitGallery.querySelectorAll('[data-outfit-sex]');
+		var searchInput = outfitGallery.querySelector('[data-outfit-search]');
+		var emptyMessage = outfitGallery.querySelector('[data-outfit-empty]');
+		var resultLabel = outfitGallery.querySelector('[data-outfit-result]');
+
+		function applyOutfitSearch() {
+			var searchTerm = searchInput.value.trim().toLowerCase();
+			var visibleOutfits = 0;
+
+			forEachElement(outfitCards, function (outfitCard) {
+				var isVisible = searchTerm === '' || outfitCard.getAttribute('data-outfit-name').indexOf(searchTerm) !== -1;
+				outfitCard.hidden = !isVisible;
+				visibleOutfits += isVisible ? 1 : 0;
+			});
+
+			emptyMessage.hidden = visibleOutfits > 0;
+		}
+
+		forEachElement(sexButtons, function (sexButton) {
+			sexButton.addEventListener('click', function () {
+				var selectedSex = sexButton.getAttribute('data-outfit-sex');
+
+				forEachElement(sexButtons, function (otherButton) {
+					otherButton.classList.toggle('is-active', otherButton === sexButton);
+				});
+
+				forEachElement(outfitGallery.querySelectorAll('.mechanics-outfit-sprite'), function (outfitSprite) {
+					outfitSprite.setAttribute('style', outfitSprite.getAttribute('data-' + selectedSex + '-style'));
+				});
+			});
+		});
+
+		searchInput.addEventListener('input', applyOutfitSearch);
+
+		outfitGallery.querySelector('[data-outfit-roll]').addEventListener('click', function () {
+			var chosenCard = outfitCards[Math.floor(Math.random() * outfitCards.length)];
+
+			searchInput.value = '';
+			applyOutfitSearch();
+
+			forEachElement(outfitCards, function (outfitCard) {
+				outfitCard.classList.toggle('is-chosen', outfitCard === chosenCard);
+			});
+
+			resultLabel.textContent = 'Você ganhou a outfit ' + chosenCard.querySelector('.mechanics-outfit-name').textContent + ' completa!';
+			chosenCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		});
+	}
+
 	setupMainTabs();
 	setupForgeSubtabs();
 	setupRecipeFilters();
@@ -395,4 +452,5 @@
 	setupGemBuilder();
 	setupElementalSimulator();
 	setupBattlePassDemo();
+	setupOutfitGallery();
 })();
