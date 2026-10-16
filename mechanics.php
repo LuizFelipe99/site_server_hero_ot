@@ -13,8 +13,8 @@ const MECHANICS_VOCATION_FILTERS = array(
 const MECHANICS_GEM_TYPES = array(
 	'health' => array('label' => 'Vida', 'unit' => ' HP', 'color' => '#ff5a4d'),
 	'mana' => array('label' => 'Mana', 'unit' => ' MP', 'color' => '#4d9bff'),
-	'critChance' => array('label' => 'Chance crítica', 'unit' => '%', 'color' => '#ffd24d'),
-	'critDamage' => array('label' => 'Dano crítico', 'unit' => '%', 'color' => '#ff8a3d'),
+	'critChance' => array('label' => 'Chance crítica', 'unit' => '%', 'color' => '#c07aff'),
+	'critDamage' => array('label' => 'Dano crítico', 'unit' => '%', 'color' => '#b8bec8'),
 	'attackSpeed' => array('label' => 'Velocidade de ataque', 'unit' => '', 'color' => '#7be08a')
 );
 const MECHANICS_ELEMENT_STYLES = array(
@@ -102,16 +102,34 @@ function describe_mechanics_custom_item_tone($item_name) {
 
 function render_mechanics_item_icon($sprite_atlas, $client_id, $item_name) {
 	$escaped_item_name = htmlspecialchars(ucwords($item_name));
-	$atlas_position = isset($sprite_atlas['positions'][(string) $client_id]) ? $sprite_atlas['positions'][(string) $client_id] : null;
 
-	if ($atlas_position === null) {
+	if (!isset($sprite_atlas['positions'][(string) $client_id])) {
 		return '<span class="mechanics-item mechanics-item-custom mechanics-tone-' . describe_mechanics_custom_item_tone($item_name) . '" title="' . $escaped_item_name . '"><i class="fa ' . describe_mechanics_custom_item_icon($item_name) . '"></i></span>';
 	}
 
+	return '<span class="mechanics-item" title="' . $escaped_item_name . '" style="' . build_mechanics_sprite_style($sprite_atlas, $client_id) . '"></span>';
+}
+
+function build_mechanics_sprite_style($sprite_atlas, $client_id) {
+	if (!isset($sprite_atlas['positions'][(string) $client_id])) {
+		return '';
+	}
+
+	$atlas_position = $sprite_atlas['positions'][(string) $client_id];
 	$background_x = $sprite_atlas['columns'] > 1 ? $atlas_position[0] / ($sprite_atlas['columns'] - 1) * 100 : 0;
 	$background_y = $sprite_atlas['rows'] > 1 ? $atlas_position[1] / ($sprite_atlas['rows'] - 1) * 100 : 0;
 
-	return '<span class="mechanics-item" title="' . $escaped_item_name . '" style="background-size: ' . ($sprite_atlas['columns'] * 100) . '% ' . ($sprite_atlas['rows'] * 100) . '%; background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;"></span>';
+	return 'background-size: ' . ($sprite_atlas['columns'] * 100) . '% ' . ($sprite_atlas['rows'] * 100) . '%; background-position: ' . round($background_x, 4) . '% ' . round($background_y, 4) . '%;';
+}
+
+function build_mechanics_gem_sprite_styles($sprite_atlas, $gems) {
+	$gem_sprite_styles = array();
+
+	foreach ($gems as $gem) {
+		$gem_sprite_styles[$gem['type']][] = build_mechanics_sprite_style($sprite_atlas, $gem['id']);
+	}
+
+	return $gem_sprite_styles;
 }
 
 function filter_mechanics_equipment_recipes($craft_recipes) {
@@ -155,6 +173,7 @@ $mechanics_data = load_mechanics_data();
 		$equipment_recipes = filter_mechanics_equipment_recipes($mechanics_data['craft']);
 		$gem_recipe_count = count($mechanics_data['craft']) - count($equipment_recipes);
 		$gems_by_type = group_mechanics_gems_by_type($mechanics_data['gems']);
+		$gem_sprite_styles = build_mechanics_gem_sprite_styles($sprite_atlas, $mechanics_data['gems']);
 		$elemental_missions = $mechanics_data['elemental']['missions'];
 		$elemental_points_available = array_sum(array_column($elemental_missions, 'points'));
 		?>
@@ -279,7 +298,7 @@ $mechanics_data = load_mechanics_data();
 					<?php foreach (MECHANICS_GEM_TYPES as $gem_type_key => $gem_type): ?>
 						<?php if (!isset($gems_by_type[$gem_type_key])) { continue; } ?>
 						<div class="mechanics-gem-option" style="--gem-color: <?php echo $gem_type['color']; ?>;" data-gem-type="<?php echo $gem_type_key; ?>">
-							<span class="mechanics-gem-icon"><i class="fa fa-diamond"></i></span>
+							<span class="mechanics-gem-icon"><span class="mechanics-item" data-gem-sprite style="<?php echo $gem_sprite_styles[$gem_type_key][0]; ?>"></span></span>
 							<div class="mechanics-gem-option-text">
 								<strong><?php echo $gem_type['label']; ?></strong>
 								<small>Nível <output data-gem-level-label>1</output> · +<output data-gem-value-label><?php echo $gems_by_type[$gem_type_key][0]; ?></output><?php echo $gem_type['unit']; ?></small>
@@ -326,7 +345,7 @@ $mechanics_data = load_mechanics_data();
 							<tr>
 								<td><strong>Nv. <?php echo $gem_level; ?></strong></td>
 								<?php foreach (MECHANICS_GEM_TYPES as $gem_type_key => $gem_type): ?>
-									<td>+<?php echo isset($gems_by_type[$gem_type_key][$gem_level - 1]) ? number_format($gems_by_type[$gem_type_key][$gem_level - 1], 0, ',', '.') . $gem_type['unit'] : '—'; ?></td>
+									<td><span class="mechanics-table-gem"><span class="mechanics-item" style="<?php echo isset($gem_sprite_styles[$gem_type_key][$gem_level - 1]) ? $gem_sprite_styles[$gem_type_key][$gem_level - 1] : ''; ?>"></span>+<?php echo isset($gems_by_type[$gem_type_key][$gem_level - 1]) ? number_format($gems_by_type[$gem_type_key][$gem_level - 1], 0, ',', '.') . $gem_type['unit'] : '—'; ?></span></td>
 								<?php endforeach; ?>
 								<td><?php echo format_mechanics_gold($gem_tier['cost']); ?></td>
 								<td><span class="mechanics-chance" style="--chance: <?php echo $gem_tier['chance']; ?>%;"><?php echo $gem_tier['chance']; ?>%</span></td>
@@ -471,6 +490,7 @@ $mechanics_data = load_mechanics_data();
 		<script>
 		window.heroMechanicsGems = <?php echo json_encode($gems_by_type); ?>;
 		window.heroMechanicsGemTypes = <?php echo json_encode(MECHANICS_GEM_TYPES); ?>;
+		window.heroMechanicsGemSprites = <?php echo json_encode($gem_sprite_styles); ?>;
 		</script>
 		<script src="layout/js/mechanics.js"></script>
 	<?php endif; ?>

@@ -153,6 +153,7 @@
 		var gemBuilder = document.querySelector('[data-gem-builder]');
 		var gemValuesByType = window.heroMechanicsGems || {};
 		var gemTypes = window.heroMechanicsGemTypes || {};
+		var gemSpriteStyles = window.heroMechanicsGemSprites || {};
 
 		if (!gemBuilder) {
 			return;
@@ -208,7 +209,7 @@
 
 				gemSlot.className = 'mechanics-gem-slot is-filled';
 				gemSlot.style.setProperty('--gem-color', gemTypes[socketedGem.type].color);
-				gemSlot.innerHTML = '<i class="fa fa-diamond"></i><small>Nv. ' + socketedGem.level + '</small>';
+				gemSlot.innerHTML = '<span class="mechanics-item" style="' + gemSpriteStyles[socketedGem.type][socketedGem.level - 1] + '"></span><small>Nv. ' + socketedGem.level + '</small>';
 				gemSlot.setAttribute('aria-label', gemTypes[socketedGem.type].label + ' nível ' + socketedGem.level + ', clique para tirar');
 			});
 
@@ -248,6 +249,7 @@
 				var gemLevel = parseInt(levelInput.value, 10);
 				gemOption.querySelector('[data-gem-level-label]').textContent = gemLevel;
 				gemOption.querySelector('[data-gem-value-label]').textContent = formatNumber(gemValuesByType[gemType][gemLevel - 1]);
+				gemOption.querySelector('[data-gem-sprite]').setAttribute('style', gemSpriteStyles[gemType][gemLevel - 1]);
 			});
 
 			gemOption.querySelector('[data-gem-add]').addEventListener('click', function () {

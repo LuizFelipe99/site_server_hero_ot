@@ -1956,8 +1956,8 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .mechanics-gem-builder { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .mechanics-gem-builder h3 { margin: 0 0 12px; font-size: 1rem; color: var(--color-gold); }
 .mechanics-gem-palette, .mechanics-gem-bag { padding: 16px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
-.mechanics-gem-option { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; grid-template-areas: "icon text add" "level level level"; align-items: center; gap: 4px 10px; margin-bottom: 8px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
-.mechanics-gem-icon { grid-area: icon; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem-color) 60%, white), var(--gem-color) 60%, color-mix(in srgb, var(--gem-color) 50%, black)); border-radius: 50%; box-shadow: 0 0 12px -2px var(--gem-color); }
+.mechanics-gem-option { display: grid; grid-template-columns: 40px minmax(0, 1fr) 36px; grid-template-areas: "icon text add" "level level level"; align-items: center; gap: 4px 10px; margin-bottom: 8px; padding: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.mechanics-gem-icon { grid-area: icon; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: radial-gradient(circle, color-mix(in srgb, var(--gem-color) 22%, transparent), transparent 70%); border: 1px solid color-mix(in srgb, var(--gem-color) 35%, transparent); border-radius: 50%; }
 .mechanics-gem-option-text { grid-area: text; display: flex; flex-direction: column; }
 .mechanics-gem-option-text strong { font-size: 0.9rem; }
 .mechanics-gem-option-text small { font-size: 0.78rem; color: var(--color-text-muted); }
@@ -1967,8 +1967,10 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .mechanics-gem-row { display: grid; grid-template-columns: 96px repeat(3, 56px); align-items: center; gap: 8px; }
 .mechanics-gem-row-label { font-size: 0.78rem; font-weight: 600; color: var(--color-text-faint); }
 .mechanics-gem-bag .mechanics-gem-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 56px; height: 56px; padding: 0; color: transparent; background: var(--color-surface-sunken); border: 1px dashed var(--color-border-strong); border-radius: 10px; box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6); text-shadow: none; }
-.mechanics-gem-bag .mechanics-gem-slot.is-filled { color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--gem-color) 55%, white), var(--gem-color) 60%, color-mix(in srgb, var(--gem-color) 45%, black)); border: 1px solid color-mix(in srgb, var(--gem-color) 70%, white); box-shadow: 0 0 16px -3px var(--gem-color); animation: register-pop 0.3s ease-out both; }
-.mechanics-gem-slot .fa { font-size: 1.2rem; }
+.mechanics-gem-bag .mechanics-gem-slot.is-filled { gap: 0; color: var(--color-text); background: radial-gradient(circle, color-mix(in srgb, var(--gem-color) 28%, transparent), var(--color-surface-sunken) 75%); border: 1px solid color-mix(in srgb, var(--gem-color) 60%, transparent); box-shadow: 0 0 14px -4px var(--gem-color), inset 0 0 10px rgba(0, 0, 0, 0.5); animation: register-pop 0.3s ease-out both; }
+.mechanics-gem-slot .mechanics-item { margin-top: 2px; }
+.mechanics-table-gem { display: inline-flex; align-items: center; gap: 4px; }
+.mechanics-table-gem .mechanics-item { width: 24px; height: 24px; }
 .mechanics-gem-slot small { font-size: 0.65rem; font-weight: 700; }
 .mechanics-gem-message { margin: 14px 0 10px; font-size: 0.82rem; color: var(--color-text-muted); }
 .mechanics-gem-message.is-warning { color: #ffcf7a; }
