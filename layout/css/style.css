@@ -1694,7 +1694,7 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	align-items: center;
 	gap: 2px;
 	height: auto;
-	padding: 22px 12px 16px;
+	padding: 14px 10px 12px;
 	font-family: var(--font-body);
 	font-weight: 400;
 	letter-spacing: 0;
@@ -1727,14 +1727,14 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	image-rendering: pixelated;
 	animation: buypoints-coin-shine 1.4s steps(12, jump-none) infinite;
 }
-.buypoints-package-icon.buypoints-coin { width: 64px; height: 64px; margin-bottom: 4px; filter: drop-shadow(0 0 10px rgba(181, 120, 255, 0.45)); }
+.buypoints-package-icon.buypoints-coin { width: 44px; height: 44px; margin-bottom: 2px; filter: drop-shadow(0 0 10px rgba(181, 120, 255, 0.45)); }
 .buypoints-test-hint { margin: 0 0 12px; padding: 8px 12px; font-size: 0.85rem; color: #ffcf7a; background: rgba(255, 170, 60, 0.08); border: 1px dashed rgba(255, 190, 90, 0.4); border-radius: var(--radius-control); }
 @keyframes buypoints-coin-shine { to { background-position: 100% 0; } }
-.buypoints-package strong { font-family: var(--font-display); font-size: 1.7rem; line-height: 1; color: var(--color-gold-light); }
+.buypoints-package strong { font-family: var(--font-display); font-size: 1.55rem; line-height: 1; color: var(--color-gold-light); }
 .buypoints-package-unit { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); }
 .buypoints-package-price {
-	margin-top: 12px;
-	padding: 6px 14px;
+	margin-top: 10px;
+	padding: 5px 14px;
 	font-size: 0.95rem;
 	font-weight: 700;
 	color: #fff4dc;
