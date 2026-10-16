@@ -337,7 +337,8 @@ if ($render_page) {
 		? $user_data['premdays'] . ' dia' . ($user_data['premdays'] == 1 ? '' : 's') . ' de premium'
 		: 'Premium até ' . date('d/m/Y', (int) $user_data['premend']);
 	$account_created_at = isset($user_znote_data['created']) ? (int) $user_znote_data['created'] : 0;
-	$account_points = isset($user_znote_data['points']) ? (int) $user_znote_data['points'] : 0;
+	$account_coin_balance = user_data($session_user_id, 'coins', 'coins_transferable');
+	$account_tibia_coins = (int) $account_coin_balance['coins'] + (int) $account_coin_balance['coins_transferable'];
 	$account_verifies_email = $config['mailserver']['myaccount_verify_email'];
 	$account_uses_two_factor = $config['ServerEngine'] === 'TFS_10' && $config['twoFactorAuthenticator'];
 	$account_two_factor_enabled = false;
@@ -360,7 +361,7 @@ if ($render_page) {
 					<?php else: ?>
 						<li class="account-badge"><i class="fa fa-star-o"></i> Conta grátis</li>
 					<?php endif; ?>
-					<li class="account-badge"><i class="fa fa-diamond"></i> <?php echo $account_points; ?> pontos</li>
+					<li class="account-badge"><a href="buypoints.php"><span class="buypoints-coin" aria-hidden="true"></span> <?php echo number_format($account_tibia_coins, 0, ',', '.'); ?> Tibia Coins</a></li>
 					<?php if ($account_created_at > 0): ?>
 						<li class="account-badge"><i class="fa fa-calendar"></i> Desde <?php echo date('d/m/Y', $account_created_at); ?></li>
 					<?php endif; ?>

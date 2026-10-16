@@ -1827,3 +1827,7 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	.buypoints-history-date { font-size: 0.78rem; }
 	.admin-pix-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+.account-badge a { display: inline-flex; align-items: center; gap: 6px; color: inherit; }
+.account-badge a:hover { color: var(--color-gold-light); }
+.account-badge .buypoints-coin { width: 18px; height: 18px; vertical-align: 0; }
