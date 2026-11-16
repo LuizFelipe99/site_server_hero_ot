@@ -2164,3 +2164,35 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .event-card-period .fa { color: var(--color-gold); }
 @keyframes event-pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 209, 122, 0.6); } 100% { box-shadow: 0 0 0 8px rgba(91, 209, 122, 0); } }
 @media (prefers-reduced-motion: reduce) { .event-card-pulse { animation: none; } }
+
+.discord-icon { flex: 0 0 auto; vertical-align: -3px; }
+.nav-account .nav-discord {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 7px;
+	padding: 7px 14px !important;
+	font-family: var(--font-display);
+	font-weight: 700 !important;
+	letter-spacing: 0.03em;
+	color: #ffffff !important;
+	background: #5865f2;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: var(--radius-control);
+}
+.nav-account .nav-discord:hover { background: #4752c4; }
+.button-discord {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	padding: 12px 24px;
+	font-family: var(--font-display);
+	font-weight: 600;
+	color: #ffffff;
+	background: #5865f2;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 4px;
+	text-decoration: none;
+}
+.button-discord:hover { color: #ffffff; background: #4752c4; text-decoration: none; }
+.button-discord .discord-icon { width: 20px; height: 20px; }
+

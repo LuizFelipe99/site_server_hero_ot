@@ -64,6 +64,7 @@
 			</div>
 			<div class="pull-right nav-account">
 				<ul>
+					<li><a href="<?php echo htmlspecialchars($layout_discord_url); ?>" class="nav-discord" target="_blank" rel="noopener noreferrer"><?php echo render_discord_icon(); ?> Discord</a> </li>
 					<?php if (user_logged_in() === true): ?>
 						<li><a href="myaccount.php" class="nav-account-link"><i class="fa fa-user"></i> Minha conta</a> </li>
 						<li><a href="logout.php" class="nav-cta-ghost"><i class="fa fa-sign-out"></i> Sair</a> </li>

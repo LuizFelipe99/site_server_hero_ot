@@ -17,7 +17,7 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
-		<link rel="stylesheet" href="layout/css/style.css?aio=5">
+		<link rel="stylesheet" href="layout/css/style.css?aio=6">
 		<link rel="stylesheet" href="layout/fontawesome/css/font-awesome.min.css?aio=1">
 		<link rel="stylesheet" href="layout/css/resp.css?aio=2">
 
@@ -57,6 +57,7 @@
 					<div class="hero-actions">
 						<a class="button-play" href="downloads.php"><i class="fa fa-play"></i> Jogar agora</a>
 						<a class="button-ghost" href="register.php"><i class="fa fa-user-plus"></i> Criar conta</a>
+						<a class="button-discord" href="<?php echo htmlspecialchars($layout_discord_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo render_discord_icon(); ?> Entrar no Discord</a>
 					</div>
 				<?php endif; ?>
 			</div>
