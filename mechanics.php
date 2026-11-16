@@ -234,6 +234,8 @@ $mechanics_data = load_mechanics_data();
 		$gem_sprite_styles = build_mechanics_gem_sprite_styles($sprite_atlas, $mechanics_data['gems']);
 		$elemental_missions = $mechanics_data['elemental']['missions'];
 		$elemental_points_available = array_sum(array_column($elemental_missions, 'points'));
+		$elemental_gold_cost = isset($mechanics_data['elemental']['goldCostPerMission']) ? (int) $mechanics_data['elemental']['goldCostPerMission'] : 0;
+		$elemental_gold_display_id = isset($mechanics_data['elemental']['goldDisplayClientId']) ? (int) $mechanics_data['elemental']['goldDisplayClientId'] : 3043;
 		?>
 		<nav class="mechanics-tabs" role="tablist" aria-label="Mecânicas">
 			<button type="button" role="tab" class="mechanics-tab" data-mechanics-tab="forja"><i class="fa fa-gavel"></i> Forja</button>
@@ -480,7 +482,7 @@ $mechanics_data = load_mechanics_data();
 			</div>
 
 			<h3 class="mechanics-subheading">Missões (<?php echo count($elemental_missions); ?>)</h3>
-			<p class="mechanics-lead">Cada missão pede <strong>20 unidades</strong> de cada um dos 5 itens e dá <strong>1 ponto elemental</strong>.</p>
+			<p class="mechanics-lead">Cada missão pede os itens listados, <strong>1 Upgrade Build Stone</strong> e <strong><?php echo format_mechanics_gold($elemental_gold_cost); ?> de gold</strong>, e dá <strong>1 ponto elemental</strong>. São <?php echo count($elemental_missions); ?> missões, até o limite de <?php echo (int) $mechanics_data['elemental']['pointsCap']; ?> pontos.</p>
 			<div class="mechanics-missions">
 				<?php foreach ($elemental_missions as $mission_index => $elemental_mission): ?>
 					<details class="mechanics-mission">
@@ -494,6 +496,9 @@ $mechanics_data = load_mechanics_data();
 							<?php foreach ($elemental_mission['items'] as $mission_item): ?>
 								<li><?php echo render_mechanics_item_icon($sprite_atlas, $mission_item['clientId'], $mission_item['name']); ?><span><?php echo (int) $mission_item['amount']; ?>x <?php echo htmlspecialchars($mission_item['name']); ?></span></li>
 							<?php endforeach; ?>
+							<?php if ($elemental_gold_cost > 0): ?>
+								<li><?php echo render_mechanics_item_icon($sprite_atlas, $elemental_gold_display_id, 'gold'); ?><span><?php echo format_mechanics_gold($elemental_gold_cost); ?> gold</span></li>
+							<?php endif; ?>
 						</ul>
 					</details>
 				<?php endforeach; ?>

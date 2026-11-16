@@ -1915,7 +1915,7 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 	flex: 0 0 auto;
 	width: 32px;
 	height: 32px;
-	background-image: url('../../images/mechanics/items.png');
+	background-image: url('../../images/mechanics/items.png?v=3');
 	background-repeat: no-repeat;
 	image-rendering: pixelated;
 }
