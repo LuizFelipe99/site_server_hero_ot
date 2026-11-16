@@ -232,7 +232,7 @@
 			}
 
 			if (freeSlotIndex === -1) {
-				showGemMessage('Todos os 9 espaços estão ocupados. Clique numa gema para tirar.', true);
+				showGemMessage('Todos os ' + gemSlots.length + ' espaços estão ocupados. Clique numa gema para tirar.', true);
 				return;
 			}
 

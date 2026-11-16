@@ -21,7 +21,7 @@ const PIX_DEFAULT_SETTINGS = array(
 	'access_token' => '',
 	'api_url' => 'https://api.mercadopago.com',
 	'simulate_approval' => false,
-	'fallback_payer_email_domain' => 'heroot.com.br',
+	'fallback_payer_email_domain' => 'noxumot.com.br',
 	'coin_type' => 'transferable',
 	'webhook_secret' => '',
 	'expiration_minutes' => 30,
@@ -49,7 +49,7 @@ const PIX_COIN_TYPES = array(
 const PIX_COIN_TRANSACTION_TYPE_ADD = 1;
 
 const PIX_PRIVATE_SETTINGS_FILE = __DIR__ . '/../../pix.config.php';
-const PIX_EXTERNAL_REFERENCE_PREFIX = 'heroot-pix-';
+const PIX_EXTERNAL_REFERENCE_PREFIX = 'noxumot-pix-';
 const PIX_SIMULATED_APPROVAL_PAYER_NAME = 'APRO';
 const PIX_SIMULATED_APPROVAL_PAYER_EMAIL = 'test@testuser.com';
 const PIX_HTTP_TIMEOUT_SECONDS = 15;

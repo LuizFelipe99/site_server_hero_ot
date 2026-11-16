@@ -2106,6 +2106,16 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .mechanics-caskets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
 .mechanics-casket { display: flex; gap: 14px; padding: 16px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border-strong); border-radius: var(--radius-panel); }
 .mechanics-casket > .mechanics-item { flex: 0 0 auto; transform: scale(1.5); margin: 8px; }
+.mechanics-access { margin-bottom: 18px; }
+.mechanics-access h3 { margin: 0 0 6px; }
+.mechanics-access p { margin: 0 0 8px; }
+.mechanics-access .mechanics-ingredients { margin-bottom: 6px; }
+.mechanics-access-step { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 34px; height: 34px; font-weight: 700; color: var(--color-gold); background: rgba(232, 184, 90, 0.08); border: 1px solid rgba(232, 184, 90, 0.45); border-radius: 50%; }
+.mechanics-access-step-advanced { color: #ff8a6a; background: rgba(193, 18, 31, 0.12); border-color: rgba(255, 106, 74, 0.55); }
+.mechanics-access-hint { font-size: 0.8rem; color: var(--color-text-faint); }
+.mechanics-advanced-badge { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; padding: 1px 7px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #ffb59f; background: rgba(193, 18, 31, 0.18); border: 1px solid rgba(255, 106, 74, 0.45); border-radius: 999px; }
+.mechanics-recipe.is-advanced { border-color: rgba(255, 106, 74, 0.35); }
+.mechanics-table tr.is-advanced td:first-child .fa-lock { margin-left: 4px; font-size: 0.75rem; color: #ff8a6a; }
 .mechanics-casket h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--color-gold-light); }
 .mechanics-casket p { margin: 0; font-size: 0.86rem; line-height: 1.55; color: var(--color-text-muted); }
 .mechanics-outfits { padding: 18px; background: rgba(15, 10, 11, 0.55); border: 1px solid var(--color-border); border-radius: var(--radius-panel); }
@@ -2139,3 +2149,18 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 @media (prefers-reduced-motion: reduce) {
 	.mechanics-page, .mechanics-panel, .mechanics-gem-slot.is-filled, .mechanics-fusion-stage { animation: none; }
 }
+
+.events-page { display: flex; flex-direction: column; gap: 14px; }
+.events-section-title { margin: 10px 0 0; font-size: 1.15rem; color: var(--color-gold); }
+.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.event-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: linear-gradient(160deg, color-mix(in srgb, var(--event-color) 22%, transparent), rgba(15, 10, 11, 0.7) 65%); border: 1px solid color-mix(in srgb, var(--event-color) 55%, transparent); border-radius: var(--radius-panel); }
+.event-card.is-active { box-shadow: 0 0 18px -8px var(--event-color); }
+.event-card-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.event-card-header h3 { margin: 0; font-size: 1rem; color: var(--color-text); }
+.event-card p { margin: 0; font-size: 0.86rem; color: var(--color-text-muted); }
+.event-card-status { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; font-size: 0.72rem; font-weight: 700; color: #8fe3a5; background: rgba(62, 168, 95, 0.14); border: 1px solid rgba(91, 209, 122, 0.4); border-radius: 999px; }
+.event-card-pulse { width: 7px; height: 7px; background: #5bd17a; border-radius: 50%; box-shadow: 0 0 0 0 rgba(91, 209, 122, 0.6); animation: event-pulse 1.8s ease-out infinite; }
+.event-card-period { margin-top: auto; font-size: 0.8rem; color: var(--color-text-faint); }
+.event-card-period .fa { color: var(--color-gold); }
+@keyframes event-pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 209, 122, 0.6); } 100% { box-shadow: 0 0 0 8px rgba(91, 209, 122, 0); } }
+@media (prefers-reduced-motion: reduce) { .event-card-pulse { animation: none; } }

@@ -15,7 +15,10 @@ const MECHANICS_GEM_TYPES = array(
 	'mana' => array('label' => 'Mana', 'unit' => ' MP', 'color' => '#4d9bff'),
 	'critChance' => array('label' => 'Chance crítica', 'unit' => '%', 'color' => '#c07aff'),
 	'critDamage' => array('label' => 'Dano crítico', 'unit' => '%', 'color' => '#b8bec8'),
-	'attackSpeed' => array('label' => 'Velocidade de ataque', 'unit' => '', 'color' => '#7be08a')
+	'attackSpeed' => array('label' => 'Velocidade de ataque', 'unit' => '%', 'color' => '#7be08a'),
+	'transcendence' => array('label' => 'Transcendência', 'unit' => '%', 'color' => '#a46bff'),
+	'dodge' => array('label' => 'Esquiva', 'unit' => '%', 'color' => '#5fd7ff'),
+	'onslaught' => array('label' => 'Onslaught', 'unit' => '%', 'color' => '#3fbf6a')
 );
 const MECHANICS_ELEMENT_STYLES = array(
 	'physical' => array('label' => 'Físico', 'icon' => 'fa-hand-rock-o', 'color' => '#d9c9b0'),
@@ -26,17 +29,20 @@ const MECHANICS_ELEMENT_STYLES = array(
 	'holy' => array('label' => 'Sagrado', 'icon' => 'fa-sun-o', 'color' => '#ffe27a'),
 	'death' => array('label' => 'Morte', 'icon' => 'fa-moon-o', 'color' => '#b07a9a')
 );
-const MECHANICS_GEM_CRAFT_TIERS = array(
-	1 => array('cost' => 3000000, 'chance' => 25),
-	2 => array('cost' => 3000000, 'chance' => 25),
-	3 => array('cost' => 3000000, 'chance' => 25),
-	4 => array('cost' => 3000000, 'chance' => 25),
-	5 => array('cost' => 3000000, 'chance' => 25),
-	6 => array('cost' => 10000000, 'chance' => 10),
-	7 => array('cost' => 10000000, 'chance' => 10),
-	8 => array('cost' => 10000000, 'chance' => 10),
-	9 => array('cost' => 20000000, 'chance' => 5)
+const MECHANICS_BASIC_CRAFT_REQUIREMENTS = array(
+	array('clientId' => 5878, 'name' => 'minotaur leather', 'amount' => 20),
+	array('clientId' => 5880, 'name' => 'iron ore', 'amount' => 10),
+	array('clientId' => 60057, 'name' => 'boss token', 'amount' => 5)
 );
+const MECHANICS_ADVANCED_CRAFT_RELICS = array(
+	array('clientId' => 63401, 'name' => 'golden ruby crafter nv. 4', 'amount' => 1),
+	array('clientId' => 63400, 'name' => 'platinum ruby crafter nv. 4', 'amount' => 1),
+	array('clientId' => 51955, 'name' => 'super stone shower rune', 'amount' => 1)
+);
+const MECHANICS_ADVANCED_CRAFT_GOLD_COST = 20000000;
+const MECHANICS_ADVANCED_CRAFT_STONE_AMOUNT = 3;
+const MECHANICS_GEM_BAG_ROWS = array('Elmo' => 'fa-shield', 'Armadura' => 'fa-male', 'Arma' => 'fa-crosshairs', 'Calça' => 'fa-columns');
+const MECHANICS_GEM_SLOTS_PER_ROW = 3;
 
 function load_mechanics_data() {
 	if (!is_file(MECHANICS_DATA_FILE)) {
@@ -154,10 +160,48 @@ function group_mechanics_gems_by_type($gems) {
 	$gems_by_type = array();
 
 	foreach ($gems as $gem) {
-		$gems_by_type[$gem['type']][] = (int) $gem['value'];
+		$gems_by_type[$gem['type']][] = (float) $gem['value'];
 	}
 
 	return $gems_by_type;
+}
+
+function format_mechanics_gem_value($gem_value) {
+	if (floor($gem_value) == $gem_value) {
+		return number_format($gem_value, 0, ',', '.');
+	}
+
+	return rtrim(rtrim(number_format($gem_value, 2, ',', '.'), '0'), ',');
+}
+
+function build_mechanics_gem_craft_tiers($craft_recipes) {
+	$gem_craft_tiers = array();
+
+	foreach ($craft_recipes as $craft_recipe) {
+		if ($craft_recipe['vocation'] !== MECHANICS_GEM_CATEGORY || !preg_match('/Lv\. (\d+)$/', $craft_recipe['name'], $level_match)) {
+			continue;
+		}
+
+		$gem_level = (int) $level_match[1];
+		if (isset($gem_craft_tiers[$gem_level])) {
+			continue;
+		}
+
+		$gem_craft_tiers[$gem_level] = array(
+			'cost' => (int) $craft_recipe['goldCost'],
+			'chance' => (int) $craft_recipe['successChance'],
+			'advanced' => !empty($craft_recipe['advanced'])
+		);
+	}
+
+	ksort($gem_craft_tiers);
+	return $gem_craft_tiers;
+}
+
+function count_mechanics_advanced_recipes($craft_recipes) {
+	return count(array_filter($craft_recipes, function ($craft_recipe) {
+		return !empty($craft_recipe['advanced']);
+	}));
 }
 
 function describe_mechanics_ingredient_amount($ingredient) {
@@ -173,7 +217,7 @@ $mechanics_data = load_mechanics_data();
 <section class="mechanics-page">
 	<div class="register-hero">
 		<span class="register-eyebrow"><i class="fa fa-book"></i> Biblioteca</span>
-		<h1>Mecânicas do Hero OT</h1>
+		<h1>Mecânicas do Noxum OT</h1>
 		<p>Os sistemas exclusivos do servidor, explicados de forma rápida. Mexa nos simuladores para entender como cada um funciona.</p>
 	</div>
 
@@ -185,6 +229,8 @@ $mechanics_data = load_mechanics_data();
 		$equipment_recipes = filter_mechanics_equipment_recipes($mechanics_data['craft']);
 		$gem_recipe_count = count($mechanics_data['craft']) - count($equipment_recipes);
 		$gems_by_type = group_mechanics_gems_by_type($mechanics_data['gems']);
+		$gem_craft_tiers = build_mechanics_gem_craft_tiers($mechanics_data['craft']);
+		$gem_bag_slot_count = count(MECHANICS_GEM_BAG_ROWS) * MECHANICS_GEM_SLOTS_PER_ROW;
 		$gem_sprite_styles = build_mechanics_gem_sprite_styles($sprite_atlas, $mechanics_data['gems']);
 		$elemental_missions = $mechanics_data['elemental']['missions'];
 		$elemental_points_available = array_sum(array_column($elemental_missions, 'points'));
@@ -200,8 +246,38 @@ $mechanics_data = load_mechanics_data();
 		<section class="mechanics-panel" id="forja" role="tabpanel">
 			<header class="mechanics-panel-header">
 				<h2>Forja</h2>
-				<p>Na Bancada de Criação você cria equipamentos de alto nível, desmonta o que não usa mais e funde materiais em versões mais raras. A bancada é liberada depois de completar a quest de acesso.</p>
+				<p>Na Bancada de Criação você cria equipamentos de alto nível, desmonta o que não usa mais e funde materiais em versões mais raras. O acesso é liberado em duas etapas com o <strong>Master Artisan</strong>, no templo.</p>
 			</header>
+
+			<div class="mechanics-caskets mechanics-access">
+				<article class="mechanics-casket">
+					<span class="mechanics-access-step">1</span>
+					<div>
+						<h3>Acesso básico</h3>
+						<p>Libera a bancada: desmanche, fusão, gemas até o nível 4 e os equipamentos comuns. Entregue ao Master Artisan:</p>
+						<ul class="mechanics-ingredients">
+							<?php foreach (MECHANICS_BASIC_CRAFT_REQUIREMENTS as $basic_requirement): ?>
+								<li><?php echo render_mechanics_item_icon($sprite_atlas, $basic_requirement['clientId'], $basic_requirement['name']); ?><span><?php echo (int) $basic_requirement['amount']; ?>x <?php echo htmlspecialchars(ucwords($basic_requirement['name'])); ?></span></li>
+							<?php endforeach; ?>
+						</ul>
+						<p class="mechanics-access-hint">Os boss tokens caem dos bosses da sala de bosses.</p>
+					</div>
+				</article>
+				<article class="mechanics-casket">
+					<span class="mechanics-access-step mechanics-access-step-advanced">2</span>
+					<div>
+						<h3>Acesso avançado</h3>
+						<p>Libera as <strong><?php echo count_mechanics_advanced_recipes($mechanics_data['craft']); ?> receitas avançadas</strong>: gemas do nível 5 ao 9 e os equipamentos da Soul War em diante. Toque nos 3 cristais escondidos na Rotten Blood para pegar as relíquias e entregue ao Master Artisan:</p>
+						<ul class="mechanics-ingredients">
+							<?php foreach (MECHANICS_ADVANCED_CRAFT_RELICS as $advanced_relic): ?>
+								<li><?php echo render_mechanics_item_icon($sprite_atlas, $advanced_relic['clientId'], $advanced_relic['name']); ?><span><?php echo (int) $advanced_relic['amount']; ?>x <?php echo htmlspecialchars(ucwords($advanced_relic['name'])); ?></span></li>
+							<?php endforeach; ?>
+							<li><span class="mechanics-item mechanics-item-custom mechanics-tone-golden"><i class="fa fa-database"></i></span><span><?php echo format_mechanics_gold(MECHANICS_ADVANCED_CRAFT_GOLD_COST); ?> gold</span></li>
+							<li><span class="mechanics-item mechanics-item-custom mechanics-tone-material"><i class="fa fa-diamond"></i></span><span><?php echo MECHANICS_ADVANCED_CRAFT_STONE_AMOUNT; ?>x gemas de nível 2, de qualquer tipo</span></li>
+						</ul>
+					</div>
+				</article>
+			</div>
 
 			<div class="mechanics-stats">
 				<div><strong><?php echo count($equipment_recipes); ?></strong><span>equipamentos para criar</span></div>
@@ -230,12 +306,13 @@ $mechanics_data = load_mechanics_data();
 
 				<div class="mechanics-recipes">
 					<?php foreach ($equipment_recipes as $equipment_recipe): ?>
-						<article class="mechanics-recipe" data-vocation="<?php echo htmlspecialchars($equipment_recipe['vocation']); ?>" data-name="<?php echo htmlspecialchars(strtolower($equipment_recipe['name'])); ?>">
+						<article class="mechanics-recipe<?php echo !empty($equipment_recipe['advanced']) ? ' is-advanced' : ''; ?>" data-vocation="<?php echo htmlspecialchars($equipment_recipe['vocation']); ?>" data-name="<?php echo htmlspecialchars(strtolower($equipment_recipe['name'])); ?>">
 							<div class="mechanics-recipe-result">
 								<?php echo render_mechanics_item_icon($sprite_atlas, $equipment_recipe['clientId'], $equipment_recipe['name']); ?>
 								<div>
 									<h3><?php echo htmlspecialchars($equipment_recipe['name']); ?></h3>
 									<span class="mechanics-recipe-vocation"><?php echo isset(MECHANICS_VOCATION_FILTERS[$equipment_recipe['vocation']]) ? MECHANICS_VOCATION_FILTERS[$equipment_recipe['vocation']] : ''; ?></span>
+									<?php if (!empty($equipment_recipe['advanced'])): ?><span class="mechanics-advanced-badge"><i class="fa fa-lock"></i> Avançada</span><?php endif; ?>
 								</div>
 							</div>
 							<ul class="mechanics-ingredients">
@@ -302,7 +379,7 @@ $mechanics_data = load_mechanics_data();
 		<section class="mechanics-panel" id="gemas" role="tabpanel" hidden>
 			<header class="mechanics-panel-header">
 				<h2>Bag Gem</h2>
-				<p>A Bag Gem tem <strong>9 espaços</strong> para gemas de atributo. Arraste uma gema para um espaço e o bônus vale na hora. Clique com o botão direito para tirar a gema, sem perder nada. Você pode encaixar no máximo <strong>2 gemas do mesmo tipo</strong>.</p>
+				<p>A Bag Gem tem <strong><?php echo $gem_bag_slot_count; ?> espaços</strong> para gemas de atributo, 3 para cada peça do seu equipamento. Arraste uma gema para um espaço e o bônus vale na hora. Clique com o botão direito para tirar a gema, sem perder nada. Você pode encaixar no máximo <strong>2 gemas do mesmo tipo</strong>.</p>
 			</header>
 
 			<div class="mechanics-gem-builder" data-gem-builder>
@@ -314,7 +391,7 @@ $mechanics_data = load_mechanics_data();
 							<span class="mechanics-gem-icon"><span class="mechanics-item" data-gem-sprite style="<?php echo $gem_sprite_styles[$gem_type_key][0]; ?>"></span></span>
 							<div class="mechanics-gem-option-text">
 								<strong><?php echo $gem_type['label']; ?></strong>
-								<small>Nível <output data-gem-level-label>1</output> · +<output data-gem-value-label><?php echo $gems_by_type[$gem_type_key][0]; ?></output><?php echo $gem_type['unit']; ?></small>
+								<small>Nível <output data-gem-level-label>1</output> · +<output data-gem-value-label><?php echo format_mechanics_gem_value($gems_by_type[$gem_type_key][0]); ?></output><?php echo $gem_type['unit']; ?></small>
 							</div>
 							<input type="range" min="1" max="<?php echo count($gems_by_type[$gem_type_key]); ?>" value="1" aria-label="Nível da gema de <?php echo $gem_type['label']; ?>" data-gem-level>
 							<button type="button" class="mechanics-gem-add" data-gem-add aria-label="Encaixar gema de <?php echo $gem_type['label']; ?>"><i class="fa fa-plus"></i></button>
@@ -325,10 +402,10 @@ $mechanics_data = load_mechanics_data();
 				<div class="mechanics-gem-bag">
 					<h3>Sua Bag Gem</h3>
 					<div class="mechanics-gem-rows">
-						<?php foreach (array('Elmo' => 'fa-shield', 'Armadura' => 'fa-male', 'Arma' => 'fa-crosshairs') as $row_label => $row_icon): ?>
+						<?php foreach (MECHANICS_GEM_BAG_ROWS as $row_label => $row_icon): ?>
 							<div class="mechanics-gem-row">
 								<span class="mechanics-gem-row-label"><i class="fa <?php echo $row_icon; ?>"></i> <?php echo $row_label; ?></span>
-								<?php for ($slot_index = 0; $slot_index < 3; $slot_index++): ?>
+								<?php for ($slot_index = 0; $slot_index < MECHANICS_GEM_SLOTS_PER_ROW; $slot_index++): ?>
 									<button type="button" class="mechanics-gem-slot" data-gem-slot aria-label="Espaço vazio"></button>
 								<?php endfor; ?>
 							</div>
@@ -340,7 +417,8 @@ $mechanics_data = load_mechanics_data();
 			</div>
 
 			<h3 class="mechanics-subheading">Como evoluir as gemas</h3>
-			<p class="mechanics-lead">As gemas são criadas na aba Craft da Forja. O nível 1 usa 3 materiais de gema, e cada nível seguinte usa <strong>3 gemas do nível anterior</strong>. Se der errado, você perde só parte das gemas usadas.</p>
+			<p class="mechanics-lead">As gemas são criadas na aba Craft da Forja. O nível 1 usa <strong>3 fragmentos</strong> da mesma família da gema, e cada nível seguinte usa <strong>3 gemas do nível anterior</strong>. Se der errado, você perde só parte das gemas usadas. Do nível 5 em diante é preciso o <strong>acesso avançado</strong> da Forja.</p>
+			<p class="mechanics-lead">Os fragmentos e as gemas de nível 1 vêm da <strong>Attribute Gem Bag</strong>, que cai dos bosses da sala de bosses (3%, ou 10% em Bakragore, King Zelos e Goshnar's Megalomania) e também sai nos packs e na roleta.</p>
 			<div class="mechanics-table-wrapper">
 				<table class="mechanics-table" data-gem-table>
 					<thead>
@@ -354,11 +432,11 @@ $mechanics_data = load_mechanics_data();
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach (MECHANICS_GEM_CRAFT_TIERS as $gem_level => $gem_tier): ?>
-							<tr>
-								<td><strong>Nv. <?php echo $gem_level; ?></strong></td>
+						<?php foreach ($gem_craft_tiers as $gem_level => $gem_tier): ?>
+							<tr<?php echo $gem_tier['advanced'] ? ' class="is-advanced"' : ''; ?>>
+								<td><strong>Nv. <?php echo $gem_level; ?></strong><?php if ($gem_tier['advanced']): ?> <i class="fa fa-lock" title="Precisa do acesso avançado"></i><?php endif; ?></td>
 								<?php foreach (MECHANICS_GEM_TYPES as $gem_type_key => $gem_type): ?>
-									<td><span class="mechanics-table-gem"><span class="mechanics-item" style="<?php echo isset($gem_sprite_styles[$gem_type_key][$gem_level - 1]) ? $gem_sprite_styles[$gem_type_key][$gem_level - 1] : ''; ?>"></span>+<?php echo isset($gems_by_type[$gem_type_key][$gem_level - 1]) ? number_format($gems_by_type[$gem_type_key][$gem_level - 1], 0, ',', '.') . $gem_type['unit'] : '—'; ?></span></td>
+									<td><span class="mechanics-table-gem"><span class="mechanics-item" style="<?php echo isset($gem_sprite_styles[$gem_type_key][$gem_level - 1]) ? $gem_sprite_styles[$gem_type_key][$gem_level - 1] : ''; ?>"></span>+<?php echo isset($gems_by_type[$gem_type_key][$gem_level - 1]) ? format_mechanics_gem_value($gems_by_type[$gem_type_key][$gem_level - 1]) . $gem_type['unit'] : '—'; ?></span></td>
 								<?php endforeach; ?>
 								<td><?php echo format_mechanics_gold($gem_tier['cost']); ?></td>
 								<td><span class="mechanics-chance" style="--chance: <?php echo $gem_tier['chance']; ?>%;"><?php echo $gem_tier['chance']; ?>%</span></td>
@@ -559,7 +637,7 @@ $mechanics_data = load_mechanics_data();
 		window.heroMechanicsGemTypes = <?php echo json_encode(MECHANICS_GEM_TYPES); ?>;
 		window.heroMechanicsGemSprites = <?php echo json_encode($gem_sprite_styles); ?>;
 		</script>
-		<script src="layout/js/mechanics.js"></script>
+		<script src="layout/js/mechanics.js?v=2"></script>
 	<?php endif; ?>
 </section>
 <?php include 'layout/overall/footer.php'; ?>

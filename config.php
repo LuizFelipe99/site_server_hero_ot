@@ -18,8 +18,8 @@
 	// As far as I know, OTX is based on TFS_03, so make sure TFS version is configured TFS_03
 	$config['CustomVersion'] = false;
 
-	$config['site_title'] = 'Znote AAC';
-	$config['site_title_context'] = 'Because open communities are good communities. :3';
+	$config['site_title'] = 'Noxum OT';
+	$config['site_title_context'] = 'Onde a noite governa.';
 	$config['site_url'] = "127.0.0.1";
 
 	// Path to server folder without "\" (or "/") at the end, ex: C:\Users\Username\Documents\GitHub\forgottenserver
