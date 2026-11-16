@@ -198,6 +198,14 @@ function build_mechanics_gem_craft_tiers($craft_recipes) {
 	return $gem_craft_tiers;
 }
 
+function calculate_mechanics_mission_gold_cost($gold_cost_per_mission, $mission_number) {
+	return $gold_cost_per_mission * $mission_number;
+}
+
+function calculate_mechanics_total_missions_gold_cost($gold_cost_per_mission, $mission_count) {
+	return $gold_cost_per_mission * $mission_count * ($mission_count + 1) / 2;
+}
+
 function count_mechanics_advanced_recipes($craft_recipes) {
 	return count(array_filter($craft_recipes, function ($craft_recipe) {
 		return !empty($craft_recipe['advanced']);
@@ -482,7 +490,8 @@ $mechanics_data = load_mechanics_data();
 			</div>
 
 			<h3 class="mechanics-subheading">Missões (<?php echo count($elemental_missions); ?>)</h3>
-			<p class="mechanics-lead">Cada missão pede os itens listados, <strong>1 Upgrade Build Stone</strong> e <strong><?php echo format_mechanics_gold($elemental_gold_cost); ?> de gold</strong>, e dá <strong>1 ponto elemental</strong>. São <?php echo count($elemental_missions); ?> missões, até o limite de <?php echo (int) $mechanics_data['elemental']['pointsCap']; ?> pontos.</p>
+			<p class="mechanics-lead">Cada missão pede os itens listados, <strong>1 Upgrade Build Stone</strong> e gold, e dá <strong>1 ponto elemental</strong>. São <?php echo count($elemental_missions); ?> missões, até o limite de <?php echo (int) $mechanics_data['elemental']['pointsCap']; ?> pontos.</p>
+			<p class="mechanics-lead">O gold sobe <strong><?php echo format_mechanics_gold($elemental_gold_cost); ?> a cada missão</strong>: a 1ª custa <?php echo format_mechanics_gold(calculate_mechanics_mission_gold_cost($elemental_gold_cost, 1)); ?>, a 2ª <?php echo format_mechanics_gold(calculate_mechanics_mission_gold_cost($elemental_gold_cost, 2)); ?> e assim por diante, até <?php echo format_mechanics_gold(calculate_mechanics_mission_gold_cost($elemental_gold_cost, count($elemental_missions))); ?> na última. Completar todas custa <strong><?php echo format_mechanics_gold(calculate_mechanics_total_missions_gold_cost($elemental_gold_cost, count($elemental_missions))); ?></strong> no total.</p>
 			<div class="mechanics-missions">
 				<?php foreach ($elemental_missions as $mission_index => $elemental_mission): ?>
 					<details class="mechanics-mission">
@@ -497,7 +506,7 @@ $mechanics_data = load_mechanics_data();
 								<li><?php echo render_mechanics_item_icon($sprite_atlas, $mission_item['clientId'], $mission_item['name']); ?><span><?php echo (int) $mission_item['amount']; ?>x <?php echo htmlspecialchars($mission_item['name']); ?></span></li>
 							<?php endforeach; ?>
 							<?php if ($elemental_gold_cost > 0): ?>
-								<li><?php echo render_mechanics_item_icon($sprite_atlas, $elemental_gold_display_id, 'gold'); ?><span><?php echo format_mechanics_gold($elemental_gold_cost); ?> gold</span></li>
+								<li><?php echo render_mechanics_item_icon($sprite_atlas, $elemental_gold_display_id, 'gold'); ?><span><?php echo format_mechanics_gold(calculate_mechanics_mission_gold_cost($elemental_gold_cost, $mission_index + 1)); ?> gold</span></li>
 							<?php endif; ?>
 						</ul>
 					</details>
