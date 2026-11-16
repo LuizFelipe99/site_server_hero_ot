@@ -1,6 +1,6 @@
 <nav class="site-nav">
 	<div class="container">
-		<a class="nav-brand" href="/"><img src="layout/img/favicon.ico" alt=""><?php echo $layout_server_name; ?></a>
+		<a class="nav-brand" href="/"><img src="layout/img/favicon.ico?v=2" alt=""><?php echo $layout_server_name; ?></a>
 
 		<input type="checkbox" id="navToggle" class="nav-toggle-input">
 		<label for="navToggle" class="nav-toggle-button" aria-label="Abrir menu"><i class="fa fa-bars"></i></label>

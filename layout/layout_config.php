@@ -1,5 +1,5 @@
 <?php
-	$layout_server_name = "Hero OT";
+	$layout_server_name = "Noxum OT";
 	$layout_server_tagline = "Reúna seu grupo, enfrente os demônios e escreva sua lenda.";
 
 	$follow = array(

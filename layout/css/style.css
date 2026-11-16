@@ -319,6 +319,27 @@ div.relative { position: relative; }
 	color: transparent;
 	filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.9));
 }
+.hero-title:has(.hero-logo) {
+	position: relative;
+	isolation: isolate;
+	display: block;
+	width: fit-content;
+	margin: 14px 0 6px;
+	filter: none;
+}
+.hero-title:has(.hero-logo)::before {
+	content: '';
+	position: absolute;
+	inset: 6% 8% 18%;
+	z-index: -1;
+	background: radial-gradient(closest-side, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.6) 60%, transparent);
+}
+.hero-logo {
+	display: block;
+	width: clamp(280px, 34vw, 440px);
+	height: auto;
+	filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.85));
+}
 .hero-tagline {
 	max-width: 520px;
 	margin-bottom: 32px;
@@ -373,6 +394,7 @@ div.relative { position: relative; }
 .hero-compact { min-height: 240px; background-position: center 38%; }
 .hero-compact .hero-content { padding: 48px 24px 24px; }
 .hero-compact .hero-title { font-size: clamp(2.2rem, 4.5vw, 3.2rem); margin-bottom: 0; }
+.hero-compact .hero-logo { width: clamp(150px, 16vw, 200px); }
 
 .main {
 	position: relative;
