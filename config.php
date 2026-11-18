@@ -23,7 +23,7 @@
 	$config['site_url'] = "127.0.0.1";
 
 	// Path to server folder without "\" (or "/") at the end, ex: C:\Users\Username\Documents\GitHub\forgottenserver
-	$config['server_path'] = 'C:\Users\quero\Desktop\teste server\crystalserver-main';
+	$config['server_path'] = 'C:\Users\quero\Desktop\teste server\crystal_server_1525\crystal_server_1525';
 
 	// ------------------------ \\
 	// MYSQL CONNECTION DETAILS \\
@@ -36,7 +36,7 @@
 	$config['sqlPassword'] = '';
 
 	// The database name to connect to. (This is usually same as username).
-	$config['sqlDatabase'] = 'crystalserver';
+	$config['sqlDatabase'] = 'crystal_1525';
 
 	// Hostname is usually localhost or 127.0.0.1.
 	$config['sqlHost'] = '127.0.0.1';
