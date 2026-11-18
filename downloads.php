@@ -1,9 +1,9 @@
 <?php require_once 'engine/init.php'; include 'layout/overall/header.php';
 
 const DOWNLOADS_LAUNCHER_PACKAGE_PATHS = array(
-	'downloads/CrystalLauncher.zip',
-	'downloads/launcher/CrystalLauncher.zip',
-	'downloads/launcher/CrystalLauncher.exe'
+	'downloads/NoxumLauncher.zip',
+	'downloads/launcher/NoxumLauncher.zip',
+	'downloads/launcher/NoxumLauncher.exe'
 );
 const DOWNLOADS_CLIENT_MANIFEST_PATH = 'downloads/client/manifest.json';
 
@@ -100,8 +100,8 @@ $downloads_client_manifest = read_downloads_client_manifest();
 		</li>
 		<li class="downloads-step">
 			<span class="downloads-step-number">2</span>
-			<h3>Abra o CrystalLauncher</h3>
-			<p><?php echo $downloads_launcher_package !== null && $downloads_launcher_package['is_zip'] ? 'Extraia o zip numa pasta e abra o <strong>CrystalLauncher.exe</strong>.' : 'Abra o <strong>CrystalLauncher.exe</strong> que você baixou.'; ?> Não precisa instalar nada antes.</p>
+			<h3>Abra o NoxumLauncher</h3>
+			<p><?php echo $downloads_launcher_package !== null && $downloads_launcher_package['is_zip'] ? 'Extraia o zip numa pasta e abra o <strong>NoxumLauncher.exe</strong>.' : 'Abra o <strong>NoxumLauncher.exe</strong> que você baixou.'; ?> Não precisa instalar nada antes.</p>
 		</li>
 		<li class="downloads-step">
 			<span class="downloads-step-number">3</span>
@@ -142,7 +142,7 @@ $downloads_client_manifest = read_downloads_client_manifest();
 		</details>
 		<details>
 			<summary>Meu antivírus bloqueou o launcher.</summary>
-			<p>Alguns antivírus desconfiam de programas que baixam arquivos. Adicione o CrystalLauncher às exceções do antivírus e abra novamente.</p>
+			<p>Alguns antivírus desconfiam de programas que baixam arquivos. Adicione o NoxumLauncher às exceções do antivírus e abra novamente.</p>
 		</details>
 		<details>
 			<summary>Onde o jogo fica instalado?</summary>
