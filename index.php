@@ -10,6 +10,14 @@ require_once 'engine/init.php'; include 'layout/overall/header.php';
 
 	if ($config['allowSubPages'] && file_exists("layout/sub/index.php")) include 'layout/sub/index.php';
 	else {
+		$open_beta_banner_ends_at = new DateTime('2026-11-27 00:00:00', new DateTimeZone('America/Sao_Paulo'));
+		if (new DateTime('now', new DateTimeZone('America/Sao_Paulo')) < $open_beta_banner_ends_at) {
+			?>
+			<a class="open-beta-banner" href="register.php">
+				<img src="images/open-beta.jpg" alt="Noxum OT - Open Beta dia 26/11 - noxumot.com.br" width="928" height="1152">
+			</a>
+			<?php
+		}
 		if ($config['UseChangelogTicker']) {
 			//////////////////////
 			// Changelog ticker //

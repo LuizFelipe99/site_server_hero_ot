@@ -2196,3 +2196,7 @@ ul.linkbuttons li:last-child:nth-child(odd) { grid-column: span 2; }
 .button-discord:hover { color: #ffffff; background: #4752c4; text-decoration: none; }
 .button-discord .discord-icon { width: 20px; height: 20px; }
 
+
+.open-beta-banner { display: block; max-width: 520px; margin: 0 auto 24px; border: 1px solid rgba(201, 151, 74, 0.35); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.open-beta-banner:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 24px rgba(214, 90, 30, 0.25); }
+.open-beta-banner img { display: block; width: 100%; height: auto; }
