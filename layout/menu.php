@@ -51,14 +51,13 @@
 							<li><a href="sub.php?page=recover">Recuperar conta</a> </li>
 						</ul>
 					</li>
-					<li><a href="shop.php"><i class="fa fa-shopping-cart"></i> Loja</a>
-						<ul>
-							<li><a href="buypoints.php">Comprar Tibia Coins</a> </li>
-							<?php if ($config['shop_auction']['characterAuction']): ?>
+					<li><a href="buypoints.php"><i class="fa fa-heart"></i> Doar</a>
+						<?php if ($config['shop_auction']['characterAuction']): ?>
+							<ul>
+								<li><a href="buypoints.php">Doar</a> </li>
 								<li><a href="auctionChar.php">Leilão de personagens</a> </li>
-							<?php endif; ?>
-							<li><a href="shop.php">Loja</a> </li>
-						</ul>
+							</ul>
+						<?php endif; ?>
 					</li>
 				</ul>
 			</div>

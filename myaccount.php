@@ -408,7 +408,7 @@ if ($render_page) {
 		<nav class="account-shortcuts" aria-label="Atalhos da conta">
 			<a class="account-shortcut" href="createcharacter.php"><i class="fa fa-user-plus"></i><span>Criar personagem</span></a>
 			<a class="account-shortcut" href="downloads.php"><i class="fa fa-download"></i><span>Baixar launcher</span></a>
-			<a class="account-shortcut" href="shop.php"><i class="fa fa-shopping-cart"></i><span>Loja</span></a>
+			<a class="account-shortcut" href="buypoints.php"><i class="fa fa-heart"></i><span>Doar</span></a>
 			<a class="account-shortcut" href="changepassword.php"><i class="fa fa-key"></i><span>Alterar senha</span></a>
 			<a class="account-shortcut" href="settings.php"><i class="fa fa-cog"></i><span>Configurações</span></a>
 			<?php if ($account_uses_two_factor): ?>

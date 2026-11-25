@@ -195,7 +195,7 @@ include 'layout/overall/header.php';
 	<?php else: ?>
 		<div class="register-hero">
 			<span class="register-eyebrow"><span class="buypoints-coin" aria-hidden="true"></span> Seu saldo: <?php echo number_format($buypoints_balance, 0, ',', '.'); ?> Tibia Coins</span>
-			<h1>Comprar Tibia Coins</h1>
+			<h1>Doar</h1>
 			<p>Pague com Pix e receba as coins na hora, sem precisar enviar comprovante. Use na Store dentro do jogo.</p>
 		</div>
 
