@@ -14,6 +14,14 @@ function resolveSiteBaseUrl() {
 	return $scheme . '://' . $host . rtrim($siteRootPath, '/');
 }
 
+function toAbsoluteSiteUrl($imageUrl) {
+	if ($imageUrl === null || preg_match('#^https?://#i', $imageUrl)) {
+		return $imageUrl;
+	}
+
+	return resolveSiteBaseUrl() . '/' . ltrim($imageUrl, '/');
+}
+
 function toLauncherBoosted($boostedCreature) {
 	if ($boostedCreature === null) {
 		return null;
@@ -21,7 +29,7 @@ function toLauncherBoosted($boostedCreature) {
 
 	$imageUrl = $boostedCreature['localImagePath'] !== null
 		? resolveSiteBaseUrl() . '/' . $boostedCreature['localImagePath']
-		: $boostedCreature['externalImageUrl'];
+		: toAbsoluteSiteUrl($boostedCreature['externalImageUrl']);
 
 	return array(
 		'name' => $boostedCreature['name'],

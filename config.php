@@ -629,7 +629,12 @@
 		'onlinelist' => true,
 		// Image server may be unreliable and only for test,
 		// host yourself: https://otland.net/threads/item-images-10-92.242492/
-		'imageServer' => 'https://outfit-images.ots.me/animatedOutfits1099/animoutfit.php'
+		'imageServer' => 'outfit.php'
+	);
+
+	$config['outfit_renderer'] = array(
+		'binary' => '/opt/noxum/outfit-renderer/outfit-renderer',
+		'things' => '/var/www/noxum/downloads/client/files/data/things/1525'
 	);
 
 	// Show advanced inventory data in character profile

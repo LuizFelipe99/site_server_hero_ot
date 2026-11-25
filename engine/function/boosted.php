@@ -48,12 +48,23 @@ function findLocalCreatureImagePath($raceId, $creatureName) {
 }
 
 function buildExternalOutfitImageUrl($outfitImageServer, $boostedRow) {
-	if (empty($outfitImageServer) || (int) $boostedRow['looktype'] <= 0) {
+	if (empty($outfitImageServer)) {
+		return null;
+	}
+
+	$lookType = (int) $boostedRow['looktype'];
+	$lookTypeEx = isset($boostedRow['looktypeEx']) ? (int) $boostedRow['looktypeEx'] : 0;
+
+	if ($lookTypeEx > 0) {
+		return $outfitImageServer . '?' . http_build_query(array('ex' => $lookTypeEx));
+	}
+
+	if ($lookType <= 0) {
 		return null;
 	}
 
 	$outfitParameters = array(
-		'id' => (int) $boostedRow['looktype'],
+		'id' => $lookType,
 		'addons' => (int) $boostedRow['lookaddons'],
 		'head' => (int) $boostedRow['lookhead'],
 		'body' => (int) $boostedRow['lookbody'],
