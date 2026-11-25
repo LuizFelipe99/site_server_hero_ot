@@ -58,7 +58,7 @@ function format_downloads_size($size_in_bytes) {
 }
 
 $downloads_server_name = isset($layout_server_name) ? $layout_server_name : $config['site_title'];
-$downloads_launcher_package = find_downloads_launcher_package();
+$downloads_launcher_package = is_launcher_download_enabled() ? find_downloads_launcher_package() : null;
 $downloads_client_manifest = read_downloads_client_manifest();
 ?>
 <section class="downloads-page">

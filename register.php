@@ -123,9 +123,11 @@ if (isset($_GET['success']) && empty($_GET['success'])) {
 			<p>Se não encontrar a mensagem em 5 minutos, confira a <strong>caixa de spam ou lixo eletrônico</strong>.</p>
 		<?php else: ?>
 			<h1>Conta criada!</h1>
-			<p>Tudo pronto. Agora é só baixar o launcher, entrar com sua conta e criar seu personagem.</p>
+			<p>Tudo pronto. <?php echo is_launcher_download_enabled() ? 'Agora é só baixar o launcher, entrar com sua conta e criar seu personagem.' : 'Agora é só criar seu personagem. O launcher estará disponível para download em breve.'; ?></p>
 			<div class="register-result-actions">
-				<a class="btn" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar o launcher</a>
+				<?php if (is_launcher_download_enabled()): ?>
+					<a class="btn" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar o launcher</a>
+				<?php endif; ?>
 				<a class="btn btn-default" href="sub.php?page=loginhelp"><i class="fa fa-sign-in"></i>&nbsp; Entrar</a>
 			</div>
 		<?php endif; ?>
@@ -147,9 +149,11 @@ if (isset($_GET['success']) && empty($_GET['success'])) {
 		<div class="register-result register-result-success">
 			<span class="register-result-icon"><i class="fa fa-check"></i></span>
 			<h1>Conta ativada!</h1>
-			<p>Seu email foi confirmado. Agora é só baixar o launcher, entrar com sua conta e criar seu personagem.</p>
+			<p>Seu email foi confirmado. <?php echo is_launcher_download_enabled() ? 'Agora é só baixar o launcher, entrar com sua conta e criar seu personagem.' : 'Agora é só criar seu personagem. O launcher estará disponível para download em breve.'; ?></p>
 			<div class="register-result-actions">
-				<a class="btn" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar o launcher</a>
+				<?php if (is_launcher_download_enabled()): ?>
+					<a class="btn" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar o launcher</a>
+				<?php endif; ?>
 				<a class="btn btn-default" href="sub.php?page=loginhelp"><i class="fa fa-sign-in"></i>&nbsp; Entrar</a>
 			</div>
 		</div>

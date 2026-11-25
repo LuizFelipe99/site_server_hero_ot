@@ -251,7 +251,9 @@ $typed_character_name = isset($_POST['name']) ? htmlspecialchars($_POST['name'])
 			</p>
 			<div class="register-result-actions">
 				<a class="btn btn-primary" href="myaccount.php"><i class="fa fa-user"></i>&nbsp; Ver minha conta</a>
-				<a class="btn btn-default" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar launcher</a>
+				<?php if (is_launcher_download_enabled()): ?>
+					<a class="btn btn-default" href="downloads.php"><i class="fa fa-download"></i>&nbsp; Baixar launcher</a>
+				<?php endif; ?>
 				<?php if (!$create_character_limit_reached): ?>
 					<a class="btn btn-default" href="createcharacter.php"><i class="fa fa-plus"></i>&nbsp; Criar outro</a>
 				<?php endif; ?>

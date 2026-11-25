@@ -1,5 +1,10 @@
 <?php
 
+function is_launcher_download_enabled() {
+	global $config;
+	return !empty($config['launcher_download_enabled']);
+}
+
 function setSession($key, $data) {
 	global $sessionPrefix;
 	$_SESSION[$sessionPrefix.$key] = $data;
