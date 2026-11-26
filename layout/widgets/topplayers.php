@@ -1,7 +1,7 @@
 <?php
 	$top_players_cache = new Cache('engine/cache/topPlayersWithOutfits');
 	if ($top_players_cache->hasExpired()) {
-		$top_players = mysql_select_multi('SELECT `name`, `level`, `experience`, `looktype`, `lookaddons`, `lookhead`, `lookbody`, `looklegs`, `lookfeet` FROM `players` WHERE `group_id` < ' . $config['highscore']['ignoreGroupId'] . ' ORDER BY `level` DESC, `experience` DESC LIMIT 5;');
+		$top_players = mysql_select_multi('SELECT `name`, `level`, `experience`, `looktype`, `lookaddons`, `lookhead`, `lookbody`, `looklegs`, `lookfeet` FROM `players` WHERE `group_id` < ' . $config['highscore']['ignoreGroupId'] . ' AND ' . sample_characters_exclusion_sql() . ' ORDER BY `level` DESC, `experience` DESC LIMIT 5;');
 		$top_players_cache->setContent($top_players);
 		$top_players_cache->save();
 	} else {

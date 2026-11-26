@@ -910,6 +910,7 @@ function user_character_list_count($account_id) {
 
 // HIGHSCORE FUNCTIONS \\
 function fetchAllScores($rows, $tfs, $g, $vlist, $v = -1, $flags = false, $outfits = false) {
+	$g = intval($g) . ' AND ' . sample_characters_exclusion_sql();
 	if (config('ServerEngine') !== 'OTHIRE') {
 		if (config('client') < 780) {
 			$outfits = ($outfits) ? ", `p`.`lookbody` AS `body`, `p`.`lookfeet` AS `feet`, `p`.`lookhead` AS `head`, `p`.`looklegs` AS `legs`, `p`.`looktype` AS `type`" : "";

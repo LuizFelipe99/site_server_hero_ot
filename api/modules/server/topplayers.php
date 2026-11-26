@@ -43,7 +43,7 @@ function fetchTopPlayers() {
 	$ignoredGroupId = resolveIgnoredGroupId();
 	$playerRows = mysql_select_multi(
 		"SELECT `name`, `level`, `vocation`, `looktype`, `lookhead`, `lookbody`, `looklegs`, `lookfeet`, `lookaddons` " .
-		"FROM `players` WHERE `group_id` < {$ignoredGroupId} ORDER BY `level` DESC, `experience` DESC LIMIT " . TOP_PLAYERS_LIMIT . ";"
+		"FROM `players` WHERE `group_id` < {$ignoredGroupId} AND " . sample_characters_exclusion_sql() . " ORDER BY `level` DESC, `experience` DESC LIMIT " . TOP_PLAYERS_LIMIT . ";"
 	);
 
 	if (empty($playerRows)) {

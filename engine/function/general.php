@@ -1,5 +1,9 @@
 <?php
 
+function sample_characters_exclusion_sql($nameColumn = '`name`') {
+	return $nameColumn . " NOT LIKE '% Sample'";
+}
+
 function is_launcher_download_enabled() {
 	global $config;
 	return !empty($config['launcher_download_enabled']);
