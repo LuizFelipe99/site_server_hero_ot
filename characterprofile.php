@@ -173,9 +173,6 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 				<?php if ($config['EQ_shower']['enabled']): ?>
 					<tr>
 						<?php
-						// Item image server
-						$imageServer = $config['shop']['imageServer'];
-						$imageType = $config['shop']['imageType'];
 						$PEQ = mysql_select_multi("
 							SELECT
 								`player_id`,
@@ -186,6 +183,9 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 							WHERE `player_id`={$user_id}
 							AND `pid`<'11'
 						");
+						$gemBagItems = mysql_select_multi("SELECT `slot_index`, `item_id` FROM `player_gem_bag` WHERE `player_id`={$user_id} AND `item_id`>0 ORDER BY `slot_index`");
+						$elementalBuildPoints = mysql_select_multi("SELECT `combat_type`, `points` FROM `player_elemental_build` WHERE `player_id`={$user_id} AND `points`>0 ORDER BY `points` DESC");
+						$elementalBuildNames = array(0 => 'Physical', 1 => 'Energy', 2 => 'Earth', 3 => 'Fire', 9 => 'Ice', 10 => 'Holy', 11 => 'Death');
 
 						$soulStamina = (in_array($config['ServerEngine'], ['TFS_10']))
 							? " `soul`, `stamina`,"
@@ -322,8 +322,8 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 										<div id="piv_lifebar"></div><div id="piv_lifetext"><span><?php echo $playerstats['health']; ?></span></div>
 										<div id="piv_manabar"></div><div id="piv_manatext"><span><?php echo $playerstats['mana']; ?></span></div>
 										<?php if ($PEQ !== false && !empty($PEQ)): foreach($PEQ as $item): ?>
-											<div class="itm itm-<?php echo $item['pid']; ?>">
-												<img src="<?php echo "http://{$imageServer}/".$item['itemtype'].".{$imageType}"; ?>">
+											<div class="itm itm-<?php echo $item['pid']; ?>" title="<?php echo htmlspecialchars(item_display_name($item['itemtype'])); ?>">
+												<img src="<?php echo item_image_url($item['itemtype']); ?>" alt="<?php echo htmlspecialchars(item_display_name($item['itemtype'])); ?>" loading="lazy">
 											</div>
 										<?php endforeach; endif; ?>
 										<span id="piv_cap">Cap:<br><?php echo $playerstats['cap']; ?></span>
@@ -469,6 +469,20 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 									height: 32px; 
 									position: absolute; 
 								}
+								#piv_flex .itm img {
+									width: 32px;
+									height: 32px;
+									image-rendering: pixelated;
+								}
+								.custom_systems_row td { vertical-align: top; }
+								.gem_bag_grid { display: flex; flex-wrap: wrap; gap: 4px; }
+								.gem_bag_slot {
+									width: 32px;
+									height: 32px;
+									background-image: url("/engine/img/bg.png");
+								}
+								.gem_bag_slot img { width: 32px; height: 32px; image-rendering: pixelated; }
+								.elemental_build_list { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 								#piv_flex .itm-1 { left: 48px; top: 39px; }
 								#piv_flex .itm-2 { left: 11px; top: 53px; }
 								#piv_flex .itm-3 { left: 85px; top: 53px; }
@@ -626,6 +640,32 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 					</tr>
 				<?php endif; ?>
 				<!-- End EQ shower -->
+				<?php if (!empty($gemBagItems)): ?>
+					<tr class="custom_systems_row">
+						<td>Gem Bag</td>
+						<td>
+							<div class="gem_bag_grid">
+								<?php foreach ($gemBagItems as $gemBagItem): $gemName = htmlspecialchars(item_display_name($gemBagItem['item_id'])); ?>
+									<div class="gem_bag_slot" title="<?php echo $gemName; ?>">
+										<img src="<?php echo item_image_url($gemBagItem['item_id']); ?>" alt="<?php echo $gemName; ?>" loading="lazy">
+									</div>
+								<?php endforeach; ?>
+							</div>
+						</td>
+					</tr>
+				<?php endif; ?>
+				<?php if (!empty($elementalBuildPoints)): ?>
+					<tr class="custom_systems_row">
+						<td>Elemental Build</td>
+						<td>
+							<div class="elemental_build_list">
+								<?php foreach ($elementalBuildPoints as $elementalBuildPoint): $combatType = (int) $elementalBuildPoint['combat_type']; ?>
+									<span><?php echo isset($elementalBuildNames[$combatType]) ? $elementalBuildNames[$combatType] : 'Element ' . $combatType; ?>: <strong><?php echo (int) $elementalBuildPoint['points']; ?></strong></span>
+								<?php endforeach; ?>
+							</div>
+						</td>
+					</tr>
+				<?php endif; ?>
 			</tbody>
 		</table>
 

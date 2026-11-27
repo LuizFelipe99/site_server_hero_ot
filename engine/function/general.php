@@ -4,6 +4,21 @@ function sample_characters_exclusion_sql($nameColumn = '`name`') {
 	return $nameColumn . " NOT LIKE '% Sample'";
 }
 
+function item_image_url($itemId) {
+	return '/images/items/' . (int) $itemId . '.png';
+}
+
+function item_display_name($itemId) {
+	static $itemNames = null;
+	if ($itemNames === null) {
+		$namesPath = __DIR__ . '/../../images/items/names.json';
+		$itemNames = is_file($namesPath) ? (json_decode(file_get_contents($namesPath), true) ?: array()) : array();
+	}
+
+	$itemId = (int) $itemId;
+	return isset($itemNames[$itemId]) ? $itemNames[$itemId] : 'item ' . $itemId;
+}
+
 function is_launcher_download_enabled() {
 	global $config;
 	return !empty($config['launcher_download_enabled']);

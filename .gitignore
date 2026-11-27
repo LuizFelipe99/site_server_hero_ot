@@ -3,3 +3,5 @@ engine/cache/*
 !engine/cache/.gitkeep
 .idea
 pix.config.php
+
+/images/items/
