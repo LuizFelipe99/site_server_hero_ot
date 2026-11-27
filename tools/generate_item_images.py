@@ -161,6 +161,14 @@ def find_sheet_for_sprite(sprite_sheets, sprite_id):
     return None
 
 
+XML_COMMENT_PATTERN = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def read_xml_without_comments(xml_path):
+    with open(xml_path, encoding="latin-1") as xml_file:
+        return XML_COMMENT_PATTERN.sub("", xml_file.read())
+
+
 def load_item_names(items_xml_path):
     if not items_xml_path:
         return {}
@@ -168,19 +176,53 @@ def load_item_names(items_xml_path):
     item_names = {}
     item_pattern = re.compile(r'<item\s+([^>]*?)/?>')
     attribute_pattern = re.compile(r'(\w+)="([^"]*)"')
-    with open(items_xml_path, encoding="latin-1") as items_file:
-        for match in item_pattern.finditer(items_file.read()):
-            attributes = dict(attribute_pattern.findall(match.group(1)))
-            name = attributes.get("name")
-            if not name:
-                continue
-            if "id" in attributes:
-                item_names[int(attributes["id"])] = name
-                continue
-            if "fromid" in attributes and "toid" in attributes:
-                for item_id in range(int(attributes["fromid"]), int(attributes["toid"]) + 1):
-                    item_names[item_id] = name
+    for match in item_pattern.finditer(read_xml_without_comments(items_xml_path)):
+        attributes = dict(attribute_pattern.findall(match.group(1)))
+        name = attributes.get("name")
+        if not name:
+            continue
+        if "id" in attributes:
+            item_names[int(attributes["id"])] = name
+            continue
+        if "fromid" in attributes and "toid" in attributes:
+            for item_id in range(int(attributes["fromid"]), int(attributes["toid"]) + 1):
+                item_names[item_id] = name
     return item_names
+
+
+def write_gem_definitions(gems_xml_path, output_directory):
+    gem_pattern = re.compile(r'<gem\s+([^>]*?)/?>')
+    attribute_pattern = re.compile(r'(\w+)="([^"]*)"')
+    gem_definitions = {}
+    for match in gem_pattern.finditer(read_xml_without_comments(gems_xml_path)):
+        attributes = dict(attribute_pattern.findall(match.group(1)))
+        if "id" in attributes and "attribute" in attributes and "value" in attributes:
+            gem_definitions[attributes["id"]] = {"attribute": attributes["attribute"], "value": float(attributes["value"])}
+
+    with open(os.path.join(output_directory, "gems.json"), "w", encoding="utf-8") as gems_file:
+        json.dump(gem_definitions, gems_file)
+    print(f"gems.json: {len(gem_definitions)} gems")
+
+
+def write_imbuement_names(imbuements_xml_path, output_directory):
+    node_pattern = re.compile(r'<(base|imbuement)\s+([^>]*?)/?>')
+    attribute_pattern = re.compile(r'(\w+)="([^"]*)"')
+    base_names = {}
+    imbuement_names = {}
+    running_imbuement_id = 0
+    for match in node_pattern.finditer(read_xml_without_comments(imbuements_xml_path)):
+        attributes = dict(attribute_pattern.findall(match.group(2)))
+        if match.group(1) == "base":
+            base_names[attributes.get("id")] = attributes.get("name", "")
+            continue
+
+        running_imbuement_id += 1
+        base_name = base_names.get(attributes.get("base"), "")
+        imbuement_names[str(running_imbuement_id)] = f"{base_name} {attributes.get('name', '')}".strip()
+
+    with open(os.path.join(output_directory, "imbuements.json"), "w", encoding="utf-8") as imbuements_file:
+        json.dump(imbuement_names, imbuements_file)
+    print(f"imbuements.json: {len(imbuement_names)} imbuements")
 
 
 def generate(things_directory, output_directory, items_xml_path):
@@ -225,8 +267,18 @@ def main():
     parser.add_argument("things_directory", help="client data/things/<version> directory containing catalog-content.json")
     parser.add_argument("output_directory", help="directory where <itemId>.png files are written")
     parser.add_argument("--items-xml", help="server items.xml used to write names.json", default=None)
+    parser.add_argument("--gems-xml", help="server gems.xml used to write gems.json", default=None)
+    parser.add_argument("--imbuements-xml", help="server imbuements.xml used to write imbuements.json", default=None)
+    parser.add_argument("--data-only", action="store_true", help="only write the json data files, skipping item images")
     arguments = parser.parse_args()
-    generate(arguments.things_directory, arguments.output_directory, arguments.items_xml)
+
+    os.makedirs(arguments.output_directory, exist_ok=True)
+    if not arguments.data_only:
+        generate(arguments.things_directory, arguments.output_directory, arguments.items_xml)
+    if arguments.gems_xml:
+        write_gem_definitions(arguments.gems_xml, arguments.output_directory)
+    if arguments.imbuements_xml:
+        write_imbuement_names(arguments.imbuements_xml, arguments.output_directory)
 
 
 if __name__ == "__main__":

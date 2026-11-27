@@ -19,6 +19,258 @@ function item_display_name($itemId) {
 	return isset($itemNames[$itemId]) ? $itemNames[$itemId] : 'item ' . $itemId;
 }
 
+function item_imbuement_display_name($imbuementId) {
+	static $imbuementNames = null;
+	if ($imbuementNames === null) {
+		$namesPath = __DIR__ . '/../../images/items/imbuements.json';
+		$imbuementNames = is_file($namesPath) ? (json_decode(file_get_contents($namesPath), true) ?: array()) : array();
+	}
+
+	$imbuementId = (int) $imbuementId;
+	return isset($imbuementNames[$imbuementId]) ? $imbuementNames[$imbuementId] : 'Imbuement ' . $imbuementId;
+}
+
+function gem_bag_definitions() {
+	static $gemDefinitions = null;
+	if ($gemDefinitions === null) {
+		$definitionsPath = __DIR__ . '/../../images/items/gems.json';
+		$gemDefinitions = is_file($definitionsPath) ? (json_decode(file_get_contents($definitionsPath), true) ?: array()) : array();
+	}
+	return $gemDefinitions;
+}
+
+function gem_bag_attribute_displays() {
+	return array(
+		'health' => array('caption' => 'Max health', 'icon' => 'health', 'color' => '#e06c6c', 'suffix' => '', 'decimals' => 0),
+		'mana' => array('caption' => 'Max mana', 'icon' => 'mana', 'color' => '#6ca0e0', 'suffix' => '', 'decimals' => 0),
+		'critChance' => array('caption' => 'Critical chance', 'icon' => 'crit', 'color' => '#f0c060', 'suffix' => '%', 'decimals' => 0),
+		'critDamage' => array('caption' => 'Critical damage', 'icon' => 'damage', 'color' => '#f08a4b', 'suffix' => '%', 'decimals' => 0),
+		'attackSpeed' => array('caption' => 'Attack speed', 'icon' => 'attack-speed', 'color' => '#6fd38a', 'suffix' => '', 'decimals' => 0),
+		'attackSpeedPercent' => array('caption' => 'Attack speed', 'icon' => 'attack-speed', 'color' => '#6fd38a', 'suffix' => '%', 'decimals' => 1),
+		'onslaught' => array('caption' => 'Onslaught', 'icon' => 'damage', 'color' => '#e05a9c', 'suffix' => '%', 'decimals' => 1),
+		'transcendence' => array('caption' => 'Transcendence', 'icon' => 'transcendence', 'color' => '#b48cf0', 'suffix' => '%', 'decimals' => 1),
+		'dodge' => array('caption' => 'Ruse (dodge)', 'icon' => 'dodge', 'color' => '#5fd8e8', 'suffix' => '%', 'decimals' => 1),
+		'resistPhysical' => array('caption' => 'Physical resistance', 'icon' => 'resist-physical', 'color' => '#c8c8c8', 'suffix' => '%', 'decimals' => 1),
+		'resistFire' => array('caption' => 'Fire resistance', 'icon' => 'resist-fire', 'color' => '#f07a3c', 'suffix' => '%', 'decimals' => 1),
+		'resistIce' => array('caption' => 'Ice resistance', 'icon' => 'resist-ice', 'color' => '#8fd6f0', 'suffix' => '%', 'decimals' => 1),
+		'resistEnergy' => array('caption' => 'Energy resistance', 'icon' => 'resist-energy', 'color' => '#c58cf0', 'suffix' => '%', 'decimals' => 1),
+		'resistEarth' => array('caption' => 'Earth resistance', 'icon' => 'resist-earth', 'color' => '#7fc65a', 'suffix' => '%', 'decimals' => 1),
+		'resistDeath' => array('caption' => 'Death resistance', 'icon' => 'resist-death', 'color' => '#a0a0a0', 'suffix' => '%', 'decimals' => 1),
+		'resistHoly' => array('caption' => 'Holy resistance', 'icon' => 'resist-holy', 'color' => '#f0e08c', 'suffix' => '%', 'decimals' => 1),
+	);
+}
+
+function format_gem_bag_value($attribute, $value) {
+	$attributeDisplays = gem_bag_attribute_displays();
+	$display = isset($attributeDisplays[$attribute]) ? $attributeDisplays[$attribute] : array('suffix' => '', 'decimals' => 0);
+	$roundedValue = round((float) $value, $display['decimals']);
+	$decimals = floor($roundedValue) == $roundedValue ? 0 : $display['decimals'];
+	return '+' . number_format($roundedValue, $decimals, '.', ',') . $display['suffix'];
+}
+
+function build_gem_bag_view($gemBagRows, $equippedItemsBySlot) {
+	$socketsPerGroup = 3;
+	$groups = array(
+		array('title' => 'Helmet', 'inventorySlot' => 1, 'fallbackItemId' => 60938),
+		array('title' => 'Armor', 'inventorySlot' => 4, 'fallbackItemId' => 60939),
+		array('title' => 'Weapon', 'inventorySlot' => 6, 'fallbackItemId' => 60941),
+		array('title' => 'Legs', 'inventorySlot' => 7, 'fallbackItemId' => 3382),
+	);
+
+	$gemItemIdBySlot = array();
+	foreach (($gemBagRows ?: array()) as $gemBagRow) {
+		$gemItemIdBySlot[(int) $gemBagRow['slot_index']] = (int) $gemBagRow['item_id'];
+	}
+
+	$gemDefinitions = gem_bag_definitions();
+	$bonusTotals = array();
+	foreach ($gemItemIdBySlot as $gemItemId) {
+		if (!isset($gemDefinitions[$gemItemId])) {
+			continue;
+		}
+
+		$attribute = $gemDefinitions[$gemItemId]['attribute'];
+		$bonusTotals[$attribute] = (isset($bonusTotals[$attribute]) ? $bonusTotals[$attribute] : 0) + $gemDefinitions[$gemItemId]['value'];
+	}
+
+	foreach ($groups as $groupIndex => $group) {
+		$inventorySlot = $group['inventorySlot'];
+		$groups[$groupIndex]['itemId'] = isset($equippedItemsBySlot[$inventorySlot]) ? $equippedItemsBySlot[$inventorySlot] : $group['fallbackItemId'];
+		$groups[$groupIndex]['hasEquippedItem'] = isset($equippedItemsBySlot[$inventorySlot]);
+		$groups[$groupIndex]['sockets'] = array();
+
+		for ($socketIndex = 0; $socketIndex < $socketsPerGroup; $socketIndex++) {
+			$slotIndex = $groupIndex * $socketsPerGroup + $socketIndex;
+			$gemItemId = isset($gemItemIdBySlot[$slotIndex]) ? $gemItemIdBySlot[$slotIndex] : 0;
+			$groups[$groupIndex]['sockets'][] = array(
+				'itemId' => $gemItemId,
+				'tooltip' => $gemItemId > 0 && isset($gemDefinitions[$gemItemId])
+					? item_display_name($gemItemId) . ': ' . format_gem_bag_value($gemDefinitions[$gemItemId]['attribute'], $gemDefinitions[$gemItemId]['value'])
+					: ($gemItemId > 0 ? item_display_name($gemItemId) : 'Empty socket'),
+			);
+		}
+	}
+
+	$orderedBonuses = array();
+	foreach (gem_bag_attribute_displays() as $attribute => $display) {
+		if (!empty($bonusTotals[$attribute])) {
+			$orderedBonuses[] = array_merge($display, array('value' => format_gem_bag_value($attribute, $bonusTotals[$attribute])));
+		}
+	}
+
+	$totalSlots = count($groups) * $socketsPerGroup;
+	return array(
+		'groups' => $groups,
+		'bonuses' => $orderedBonuses,
+		'socketedCount' => count(array_filter($gemItemIdBySlot)),
+		'totalSlots' => $totalSlots,
+	);
+}
+
+function item_attribute_reader_read($attributes, &$offset, $length) {
+	if ($offset + $length > strlen($attributes)) {
+		return null;
+	}
+
+	$value = substr($attributes, $offset, $length);
+	$offset += $length;
+	return $value;
+}
+
+function item_attribute_reader_string($attributes, &$offset) {
+	$lengthBytes = item_attribute_reader_read($attributes, $offset, 2);
+	if ($lengthBytes === null) {
+		return null;
+	}
+
+	return item_attribute_reader_read($attributes, $offset, unpack('v', $lengthBytes)[1]);
+}
+
+function item_attribute_reader_custom_value($attributes, &$offset) {
+	$typeByte = item_attribute_reader_read($attributes, $offset, 1);
+	if ($typeByte === null) {
+		return array(false, null);
+	}
+
+	$valueType = ord($typeByte);
+	if ($valueType === 1) {
+		$stringValue = item_attribute_reader_string($attributes, $offset);
+		return array($stringValue !== null, $stringValue);
+	}
+
+	if ($valueType === 2) {
+		$integerBytes = item_attribute_reader_read($attributes, $offset, 8);
+		return array($integerBytes !== null, $integerBytes === null ? null : unpack('P', $integerBytes)[1]);
+	}
+
+	$fixedSizes = array(3 => 8, 4 => 1);
+	if (!isset($fixedSizes[$valueType])) {
+		return array(false, null);
+	}
+
+	return array(item_attribute_reader_read($attributes, $offset, $fixedSizes[$valueType]) !== null, null);
+}
+
+function parse_item_attributes($attributes) {
+	$parsedAttributes = array('tier' => 0, 'custom' => array());
+	if (!is_string($attributes) || $attributes === '') {
+		return $parsedAttributes;
+	}
+
+	$fixedSizes = array(
+		1 => 8, 4 => 2, 5 => 2, 8 => 5, 10 => 2, 12 => 1, 14 => 1, 15 => 1, 16 => 4, 17 => 1,
+		18 => 8, 20 => 4, 21 => 4, 22 => 2, 27 => 4, 28 => 4, 29 => 4, 30 => 4, 31 => 4,
+		32 => 1, 33 => 1, 35 => 4, 36 => 1, 38 => 4, 39 => 2, 40 => 1, 43 => 4, 44 => 4
+	);
+	$stringAttributes = array(6, 7, 19, 24, 25, 26, 34, 42);
+	$customAttributeTypes = array(37, 41);
+	$tierAttribute = 40;
+
+	$offset = 0;
+	while ($offset < strlen($attributes)) {
+		$attributeType = ord($attributes[$offset]);
+		$offset++;
+		if ($attributeType === 0) {
+			break;
+		}
+
+		if (isset($fixedSizes[$attributeType])) {
+			$value = item_attribute_reader_read($attributes, $offset, $fixedSizes[$attributeType]);
+			if ($value === null) {
+				break;
+			}
+			if ($attributeType === $tierAttribute) {
+				$parsedAttributes['tier'] = ord($value);
+			}
+			continue;
+		}
+
+		if (in_array($attributeType, $stringAttributes, true)) {
+			if (item_attribute_reader_string($attributes, $offset) === null) {
+				break;
+			}
+			continue;
+		}
+
+		if (!in_array($attributeType, $customAttributeTypes, true)) {
+			break;
+		}
+
+		$countBytes = item_attribute_reader_read($attributes, $offset, 8);
+		if ($countBytes === null) {
+			break;
+		}
+
+		$customAttributeCount = unpack('P', $countBytes)[1];
+		for ($customIndex = 0; $customIndex < $customAttributeCount; $customIndex++) {
+			$customKey = item_attribute_reader_string($attributes, $offset);
+			if ($customKey === null) {
+				return $parsedAttributes;
+			}
+
+			list($readSucceeded, $customValue) = item_attribute_reader_custom_value($attributes, $offset);
+			if (!$readSucceeded) {
+				return $parsedAttributes;
+			}
+			$parsedAttributes['custom'][$customKey] = $customValue;
+		}
+	}
+
+	return $parsedAttributes;
+}
+
+function item_imbuements_from_attributes($parsedAttributes) {
+	$firstImbuementSlotKey = 500;
+	$maxImbuementSlots = 3;
+	$imbuements = array();
+
+	for ($slotIndex = 0; $slotIndex < $maxImbuementSlots; $slotIndex++) {
+		$slotKey = (string) ($firstImbuementSlotKey + $slotIndex);
+		if (empty($parsedAttributes['custom'][$slotKey])) {
+			continue;
+		}
+
+		$slotValue = (int) $parsedAttributes['custom'][$slotKey];
+		$durationSeconds = $slotValue >> 8;
+		if ($durationSeconds <= 0) {
+			continue;
+		}
+
+		$imbuements[] = array(
+			'name' => item_imbuement_display_name($slotValue & 0xFF),
+			'duration' => $durationSeconds,
+		);
+	}
+
+	return $imbuements;
+}
+
+function format_imbuement_duration($durationSeconds) {
+	$hours = intdiv($durationSeconds, 3600);
+	$minutes = intdiv($durationSeconds % 3600, 60);
+	return $hours > 0 ? sprintf('%dh %02dmin', $hours, $minutes) : sprintf('%dmin', $minutes);
+}
+
 function is_launcher_download_enabled() {
 	global $config;
 	return !empty($config['launcher_download_enabled']);

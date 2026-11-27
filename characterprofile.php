@@ -178,13 +178,33 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 								`player_id`,
 								`pid`,
 								`itemtype`,
-								`count`
+								`count`,
+								`attributes`
 							FROM `player_items`
 							WHERE `player_id`={$user_id}
 							AND `pid`<'11'
 						");
 						$gemBagItems = mysql_select_multi("SELECT `slot_index`, `item_id` FROM `player_gem_bag` WHERE `player_id`={$user_id} AND `item_id`>0 ORDER BY `slot_index`");
 						$elementalBuildPoints = mysql_select_multi("SELECT `combat_type`, `points` FROM `player_elemental_build` WHERE `player_id`={$user_id} AND `points`>0 ORDER BY `points` DESC");
+						$equippedItemsBySlot = array();
+						foreach (($PEQ ?: array()) as $equippedItem) {
+							$equippedItemsBySlot[(int) $equippedItem['pid']] = (int) $equippedItem['itemtype'];
+						}
+						$gemBagView = !empty($gemBagItems) ? build_gem_bag_view($gemBagItems, $equippedItemsBySlot) : null;
+						$imbuedEquipment = array();
+						foreach (($PEQ ?: array()) as $equippedItem) {
+							$parsedAttributes = parse_item_attributes($equippedItem['attributes']);
+							$itemImbuements = item_imbuements_from_attributes($parsedAttributes);
+							if (empty($itemImbuements)) {
+								continue;
+							}
+
+							$imbuedEquipment[] = array(
+								'itemtype' => $equippedItem['itemtype'],
+								'tier' => $parsedAttributes['tier'],
+								'imbuements' => $itemImbuements,
+							);
+						}
 						$elementalBuildNames = array(0 => 'Physical', 1 => 'Energy', 2 => 'Earth', 3 => 'Fire', 9 => 'Ice', 10 => 'Holy', 11 => 'Death');
 
 						$soulStamina = (in_array($config['ServerEngine'], ['TFS_10']))
@@ -475,13 +495,99 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 									image-rendering: pixelated;
 								}
 								.custom_systems_row td { vertical-align: top; }
-								.gem_bag_grid { display: flex; flex-wrap: wrap; gap: 4px; }
+								.gem_bag_window {
+									display: inline-block;
+									max-width: 100%;
+									background: #3b3b3b;
+									border: 1px solid #1c1c1c;
+									box-shadow: inset 0 0 0 1px #4f4f4f;
+									font-family: Verdana, Geneva, sans-serif;
+									font-size: 11px;
+									color: #c0c0c0;
+								}
+								.gem_bag_title {
+									text-align: center;
+									font-weight: bold;
+									color: #ffffff;
+									padding: 4px 0;
+									background: #2a2a2a;
+									border-bottom: 1px solid #1c1c1c;
+								}
+								.gem_bag_body { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
+								.gem_bag_groups { display: flex; flex-direction: column; gap: 6px; width: 240px; }
+								.gem_bag_group {
+									background: rgba(0,0,0,0.33);
+									border: 1px solid #1f1f1f;
+									box-shadow: inset 0 0 0 1px #555;
+									padding: 4px 6px 6px;
+								}
+								.gem_bag_group_title { color: #f0c060; font-weight: bold; margin-left: 58px; margin-bottom: 2px; }
+								.gem_bag_group_row { display: flex; align-items: center; gap: 8px; }
+								.gem_bag_equipment {
+									width: 44px;
+									height: 44px;
+									margin-right: 8px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									background: rgba(0,0,0,0.53);
+									border: 1px solid #1a1a1a;
+									box-shadow: inset 0 0 0 1px #4a4a4a;
+								}
+								.gem_bag_equipment img { width: 32px; height: 32px; image-rendering: pixelated; }
+								.gem_bag_equipment_empty img { opacity: 0.35; }
+								.gem_bag_socket {
+									position: relative;
+									width: 44px;
+									height: 44px;
+									display: flex;
+									align-items: center;
+									justify-content: center;
+									background: url("/images/gembag/socket-inactive.png") center / 100% 100% no-repeat;
+								}
+								.gem_bag_socket_filled { background-image: url("/images/gembag/socket-active.png"); }
+								.gem_bag_socket_filled::after {
+									content: "";
+									position: absolute;
+									inset: -6px;
+									background: url("/images/gembag/socket-marker.png") center / 100% 100% no-repeat;
+									pointer-events: none;
+								}
+								.gem_bag_socket img { width: 32px; height: 32px; image-rendering: pixelated; position: relative; z-index: 1; }
+								.gem_bag_bonuses {
+									display: flex;
+									flex-direction: column;
+									gap: 4px;
+									width: 210px;
+									padding: 6px;
+									background: rgba(0,0,0,0.33);
+									border: 1px solid #1f1f1f;
+									box-shadow: inset 0 0 0 1px #555;
+								}
+								.gem_bag_bonus_header {
+									color: #f0c060;
+									font-weight: bold;
+									padding: 3px 6px;
+									margin-bottom: 4px;
+									background: rgba(0,0,0,0.53);
+									border: 1px solid #4a4a4a;
+								}
+								.gem_bag_bonus_row { display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+								.gem_bag_bonus_row img { width: 12px; height: 12px; image-rendering: pixelated; }
+								.gem_bag_bonus_caption { flex: 1; }
+								.gem_bag_bonus_value { font-weight: bold; }
+								.gem_bag_progress { margin-top: auto; padding-top: 10px; color: #9d9d9d; }
+								.gem_bag_progress_bar { height: 8px; margin-top: 4px; background: #1a1a1a; border: 1px solid #4a4a4a; }
+								.gem_bag_progress_bar div { height: 100%; background: #c28400; }
 								.gem_bag_slot {
 									width: 32px;
 									height: 32px;
 									background-image: url("/engine/img/bg.png");
 								}
 								.gem_bag_slot img { width: 32px; height: 32px; image-rendering: pixelated; }
+								.imbuement_list { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+								.imbuement_item { display: flex; gap: 8px; align-items: flex-start; }
+								.imbuement_duration { opacity: 0.7; font-size: 0.9em; }
 								.elemental_build_list { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 								#piv_flex .itm-1 { left: 48px; top: 39px; }
 								#piv_flex .itm-2 { left: 11px; top: 53px; }
@@ -640,16 +746,69 @@ if (isset($_GET['name']) === true && empty($_GET['name']) === false) {
 					</tr>
 				<?php endif; ?>
 				<!-- End EQ shower -->
-				<?php if (!empty($gemBagItems)): ?>
+				<?php if (!empty($imbuedEquipment)): ?>
+					<tr class="custom_systems_row">
+						<td>Imbuements</td>
+						<td>
+							<div class="imbuement_list">
+								<?php foreach ($imbuedEquipment as $imbuedItem): $imbuedItemName = htmlspecialchars(item_display_name($imbuedItem['itemtype'])); ?>
+									<div class="imbuement_item">
+										<div class="gem_bag_slot" title="<?php echo $imbuedItemName; ?>">
+											<img src="<?php echo item_image_url($imbuedItem['itemtype']); ?>" alt="<?php echo $imbuedItemName; ?>" loading="lazy">
+										</div>
+										<div>
+											<strong><?php echo $imbuedItemName; ?><?php echo $imbuedItem['tier'] > 0 ? ' (tier ' . (int) $imbuedItem['tier'] . ')' : ''; ?></strong>
+											<?php foreach ($imbuedItem['imbuements'] as $imbuement): ?>
+												<div><?php echo htmlspecialchars($imbuement['name']); ?> <span class="imbuement_duration"><?php echo format_imbuement_duration($imbuement['duration']); ?></span></div>
+											<?php endforeach; ?>
+										</div>
+									</div>
+								<?php endforeach; ?>
+							</div>
+						</td>
+					</tr>
+				<?php endif; ?>
+				<?php if (!empty($gemBagView)): ?>
 					<tr class="custom_systems_row">
 						<td>Gem Bag</td>
 						<td>
-							<div class="gem_bag_grid">
-								<?php foreach ($gemBagItems as $gemBagItem): $gemName = htmlspecialchars(item_display_name($gemBagItem['item_id'])); ?>
-									<div class="gem_bag_slot" title="<?php echo $gemName; ?>">
-										<img src="<?php echo item_image_url($gemBagItem['item_id']); ?>" alt="<?php echo $gemName; ?>" loading="lazy">
+							<div class="gem_bag_window">
+								<div class="gem_bag_title">Bag Gem</div>
+								<div class="gem_bag_body">
+									<div class="gem_bag_groups">
+										<?php foreach ($gemBagView['groups'] as $gemGroup): $equipmentName = htmlspecialchars(item_display_name($gemGroup['itemId'])); ?>
+											<div class="gem_bag_group">
+												<div class="gem_bag_group_title"><?php echo $gemGroup['title']; ?></div>
+												<div class="gem_bag_group_row">
+													<div class="gem_bag_equipment<?php echo $gemGroup['hasEquippedItem'] ? '' : ' gem_bag_equipment_empty'; ?>" title="<?php echo $equipmentName; ?>">
+														<img src="<?php echo item_image_url($gemGroup['itemId']); ?>" alt="<?php echo $equipmentName; ?>" loading="lazy">
+													</div>
+													<?php foreach ($gemGroup['sockets'] as $gemSocket): $socketTooltip = htmlspecialchars($gemSocket['tooltip']); ?>
+														<div class="gem_bag_socket<?php echo $gemSocket['itemId'] > 0 ? ' gem_bag_socket_filled' : ''; ?>" title="<?php echo $socketTooltip; ?>">
+															<?php if ($gemSocket['itemId'] > 0): ?>
+																<img src="<?php echo item_image_url($gemSocket['itemId']); ?>" alt="<?php echo $socketTooltip; ?>" loading="lazy">
+															<?php endif; ?>
+														</div>
+													<?php endforeach; ?>
+												</div>
+											</div>
+										<?php endforeach; ?>
 									</div>
-								<?php endforeach; ?>
+									<div class="gem_bag_bonuses">
+										<div class="gem_bag_bonus_header">Active bonuses</div>
+										<?php foreach ($gemBagView['bonuses'] as $gemBonus): ?>
+											<div class="gem_bag_bonus_row">
+												<img src="/images/gembag/<?php echo $gemBonus['icon']; ?>.png" alt="">
+												<span class="gem_bag_bonus_caption"><?php echo $gemBonus['caption']; ?></span>
+												<span class="gem_bag_bonus_value" style="color: <?php echo $gemBonus['color']; ?>;"><?php echo $gemBonus['value']; ?></span>
+											</div>
+										<?php endforeach; ?>
+										<div class="gem_bag_progress">
+											<div class="gem_bag_progress_label">Gems socketed: <?php echo $gemBagView['socketedCount']; ?> / <?php echo $gemBagView['totalSlots']; ?></div>
+											<div class="gem_bag_progress_bar"><div style="width: <?php echo round($gemBagView['socketedCount'] * 100 / max(1, $gemBagView['totalSlots'])); ?>%;"></div></div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</td>
 					</tr>
