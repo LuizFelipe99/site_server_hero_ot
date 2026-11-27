@@ -614,7 +614,7 @@
 
 	// Use country flags
 	$config['country_flags'] = array(
-		'enabled' => true,
+		'enabled' => false,
 		'highscores' => true,
 		'onlinelist' => true,
 		'characterprofile' => true,
