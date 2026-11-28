@@ -17,7 +17,10 @@ require_once 'engine/init.php'; include 'layout/overall/header.php';
 		<?php
 	}
 
-	if ($config['allowSubPages'] && file_exists("layout/sub/index.php")) include 'layout/sub/index.php';
+	$is_home_overview = ($view === "" && $page === 0);
+
+	if ($is_home_overview) include 'layout/home.php';
+	else if ($config['allowSubPages'] && file_exists("layout/sub/index.php")) include 'layout/sub/index.php';
 	else {
 		if ($config['UseChangelogTicker']) {
 			//////////////////////

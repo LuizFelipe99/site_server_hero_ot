@@ -42,6 +42,8 @@ require_once 'function/cache.php';
 require_once 'function/mail.php';
 require_once 'function/token.php';
 require_once 'function/server_events.php';
+require_once 'function/server_info.php';
+require_once 'function/home.php';
 require_once 'function/itemparser/itemlistparser.php';
 
 if (isset($_SESSION['token'])) {

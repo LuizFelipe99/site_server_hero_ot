@@ -10,7 +10,7 @@
 				<ul>
 					<li><a href="/"><i class="fa fa-home"></i> Início</a>
 						<ul>
-							<li><a href="/">Notícias</a> </li>
+							<li><a href="novidades.php">Novidades</a> </li>
 							<li><a href="events.php">Eventos</a> </li>
 							<li><a href="changelog.php">Changelog</a> </li>
 						</ul>
