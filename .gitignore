@@ -5,3 +5,5 @@ engine/cache/*
 pix.config.php
 
 /images/items/
+/downloads/client/
+/downloads/launcher/

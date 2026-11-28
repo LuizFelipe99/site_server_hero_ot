@@ -1,9 +1,0 @@
-Module
-  name: game_helper
-  description: RTC Helper
-  author: teste
-  website: www.crystalserver.com
-  sandboxed: true
-  scripts: [ helper ]
-  @onLoad: init()
-  @onUnload: terminate()

@@ -1,9 +1,0 @@
-{
-  "serverName": "Crystal Server",
-  "manifestUrl": "http://localhost/downloads/client/manifest.json",
-  "websiteUrl": "http://localhost/",
-  "launcherDownloadUrl": "http://localhost/downloads.php",
-  "installDirectory": "",
-  "maximumParallelDownloads": 4,
-  "closeLauncherAfterStartingClient": false
-}

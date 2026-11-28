@@ -1,9 +1,0 @@
-Module
-  name: game_potioncooldown
-  description: Potion Cooldown
-  author: CrystalServer
-  sandboxed: true
-  autoload: true
-  scripts: [ potioncooldown ]
-  @onLoad: init()
-  @onUnload: terminate()

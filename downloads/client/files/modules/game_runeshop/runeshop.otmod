@@ -1,9 +1,0 @@
-Module
-  name: game_runeshop
-  description: Rune Shop
-  author: CrystalServer
-  sandboxed: true
-  autoload: true
-  scripts: [runeshop]
-  @onLoad: RuneShopController:init()
-  @onUnload: RuneShopController:terminate()
